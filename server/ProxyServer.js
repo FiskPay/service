@@ -8,7 +8,7 @@ import { io } from "socket.io-client";
 
 import { dateTime } from "./functions/dateTools.js";
 
-const myENV = dotenv.config({ path: "./.env" }).parsed;
+const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
 
 const httpServerHandler = new express();
 const corsOptions = { origin: "*", credentials: true, optionSuccessStatus: 200 };

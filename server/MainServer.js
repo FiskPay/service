@@ -8,13 +8,13 @@ import { dateTime } from "./functions/dateTools.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-const myENV = dotenv.config({ path: "./.env" }).parsed;
+const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
 
 const transactions = new DataLoop(30);
 const packets = new DataLoop(10);
 
-const orderstDir = "./private/ordersBucket/";
-const serverDir = "./private/serverBucket/";
+const orderstDir = "M:/Workspaces/service/server/private/ordersBucket/";
+const serverDir = "M:/Workspaces/service/server/private/serverBucket/";
 const orders = new Orders(orderstDir, serverDir, 1, 5);
 const triggerRetryAttempts = 5;
 const triggerRetrySeconds = 120;

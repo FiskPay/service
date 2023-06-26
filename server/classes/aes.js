@@ -19,7 +19,7 @@ export default class AES256 {
         }
     }
 
-    #extraSeed = dotenv.config({ path: "./.env" }).parsed.extraAESSeed;
+    #extraSeed = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed.extraAESSeed;
 
     encrypt(data, seed) {
 

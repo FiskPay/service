@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import sha256 from "sha256";
 import AES from "./aes.js";
 
-import { toDateFolder } from '.././functions/dateTools.js';
+import { toDateFolder } from '../functions/dateTools.js';
 
 export default class Orders extends EventEmitter {
 
@@ -67,7 +67,7 @@ export default class Orders extends EventEmitter {
 
         super();
 
-        this.#myENV = dotenv.config({ path: "./.env" }).parsed;
+        this.#myENV  = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
 
         this.#ordersDir = ordersDir;
 

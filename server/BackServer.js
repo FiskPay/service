@@ -8,7 +8,7 @@ import { dateTime } from "./functions/dateTools.js";
 
 import { io } from "socket.io-client";
 
-const myENV = dotenv.config({ path: "./.env" }).parsed;
+const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
 
 const mainnetProviderURLs = [myENV.mainnetProvider1, myENV.mainnetProvider2];
 const testnetProviderURLs = [myENV.testnetProvider1, myENV.testnetProvider2];

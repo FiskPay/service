@@ -1,7 +1,7 @@
-export function isJson(_string) {
+export function isJson(string) {
 
     try {
-        JSON.parse(_string);
+        JSON.parse(string);
     } catch (e) {
         return false;
     }
