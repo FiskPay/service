@@ -1,2 +1,0 @@
-app.exe polygon
-pause
