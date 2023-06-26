@@ -1,0 +1,70 @@
+{
+	"compiler": {
+		"version": "0.8.18+commit.87f61d96"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_receiver",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "Swap",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Payment/Processor.sol": "ISwapper"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 2000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Payment/Processor.sol": {
+			"keccak256": "0x9961d5acdf8cfbb14b4dbac2535a3bb5212a914f701ecdc955ef6230531498d3",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ba62c6ebe292c7fc7fe5210164dba76de1a654fab939a552d55a03f8a1e454ad",
+				"dweb:/ipfs/QmXMkw7JosAshf5GGgnXZSDdNMNpfRcpt2dFp7ERYah5gY"
+			]
+		}
+	},
+	"version": 1
+}

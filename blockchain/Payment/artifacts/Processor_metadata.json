@@ -1,0 +1,125 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "bytes32",
+						"name": "verification",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint32",
+						"name": "timestamp",
+						"type": "uint32"
+					}
+				],
+				"name": "Processed",
+				"type": "event"
+			},
+			{
+				"stateMutability": "nonpayable",
+				"type": "fallback"
+			},
+			{
+				"inputs": [],
+				"name": "Name",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_symbol",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_receiver",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "_verification",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint32",
+						"name": "_timestamp",
+						"type": "uint32"
+					}
+				],
+				"name": "Process",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Payment/Processor.sol": "Processor"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 20000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Payment/Processor.sol": {
+			"keccak256": "0x9c3dc8d6517180d3eaeaed4fc407a4dadb79286b48722de884baf299bb9bec51",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4cf714c8809aacf34d6e9bc6bfe72aded9830057b02a03ab8c868cfeb8d650a0",
+				"dweb:/ipfs/QmWmjARZNiXWKTL4vSmDBWaxKHBQLcgqFbBr56vbtyrx2W"
+			]
+		}
+	},
+	"version": 1
+}

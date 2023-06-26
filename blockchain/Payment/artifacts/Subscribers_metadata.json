@@ -1,0 +1,480 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "subscriber",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint32",
+						"name": "daysNumber",
+						"type": "uint32"
+					}
+				],
+				"name": "Subscribed",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "subscriber",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint32",
+						"name": "daysNumber",
+						"type": "uint32"
+					}
+				],
+				"name": "SubscriptionDecreased",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "subscriber",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint32",
+						"name": "daysNumber",
+						"type": "uint32"
+					}
+				],
+				"name": "SubscriptionIncreased",
+				"type": "event"
+			},
+			{
+				"stateMutability": "nonpayable",
+				"type": "fallback"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_subscriber",
+						"type": "address"
+					},
+					{
+						"internalType": "uint32",
+						"name": "_days",
+						"type": "uint32"
+					}
+				],
+				"name": "AddToSubscription",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_subscriber",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "AllowProcessing",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "GetAllowSubscribing",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "GetDaysPerSeason",
+				"outputs": [
+					{
+						"internalType": "uint32",
+						"name": "",
+						"type": "uint32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "GetMinimumUSDToCount",
+				"outputs": [
+					{
+						"internalType": "uint16",
+						"name": "",
+						"type": "uint16"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_referrer",
+						"type": "address"
+					}
+				],
+				"name": "GetReferrerSubscriptions",
+				"outputs": [
+					{
+						"internalType": "uint32",
+						"name": "",
+						"type": "uint32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "GetSubscriptionCostPerDay",
+				"outputs": [
+					{
+						"internalType": "uint16",
+						"name": "",
+						"type": "uint16"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "GetSubscriptionsToReward",
+				"outputs": [
+					{
+						"internalType": "uint32",
+						"name": "",
+						"type": "uint32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "GetTransactionsPerSeason",
+				"outputs": [
+					{
+						"internalType": "uint32",
+						"name": "",
+						"type": "uint32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "Name",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_subscriber",
+						"type": "address"
+					},
+					{
+						"internalType": "uint32",
+						"name": "_days",
+						"type": "uint32"
+					}
+				],
+				"name": "RemoveFromSubscription",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bool",
+						"name": "_allow",
+						"type": "bool"
+					}
+				],
+				"name": "SetAllowSubscribing",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint32",
+						"name": "_days",
+						"type": "uint32"
+					}
+				],
+				"name": "SetDaysPerSeason",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint16",
+						"name": "_usd",
+						"type": "uint16"
+					}
+				],
+				"name": "SetMinimumUSDToCount",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint16",
+						"name": "_usd",
+						"type": "uint16"
+					}
+				],
+				"name": "SetSubscriptionCostPerDay",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint32",
+						"name": "_subscriptions",
+						"type": "uint32"
+					}
+				],
+				"name": "SetSubscriptionsToReward",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint32",
+						"name": "_transactions",
+						"type": "uint32"
+					}
+				],
+				"name": "SetTransactionsPerSeason",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint32",
+						"name": "_days",
+						"type": "uint32"
+					},
+					{
+						"internalType": "address",
+						"name": "_referrer",
+						"type": "address"
+					}
+				],
+				"name": "Subscribe",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_subscriber",
+						"type": "address"
+					}
+				],
+				"name": "SubscriberProfile",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "referredBy",
+						"type": "address"
+					},
+					{
+						"internalType": "uint32",
+						"name": "transactionCount",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint32",
+						"name": "nextSeason",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint32",
+						"name": "subscribedUntil",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint32",
+						"name": "subscribtionDaysLeft",
+						"type": "uint32"
+					},
+					{
+						"internalType": "bool",
+						"name": "isSubscriber",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint32",
+						"name": "lastTransaction",
+						"type": "uint32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Payment/Subscribers.sol": "Subscribers"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 20000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Payment/Subscribers.sol": {
+			"keccak256": "0x5359591030cb5590d53be9ef542c4b65031f1dfd6e8907217b564bd14f68e5fc",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://797433ff9fa963e32714881b4fe06fec75c3e23f51d1c79d08ca1aae2ca537c3",
+				"dweb:/ipfs/QmToGUTyTH3SbT2R7meYg73no3GVvRHLfyQrb5T95zNYWU"
+			]
+		}
+	},
+	"version": 1
+}

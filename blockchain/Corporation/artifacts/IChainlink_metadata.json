@@ -1,0 +1,72 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "decimals",
+				"outputs": [
+					{
+						"internalType": "uint8",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "latestAnswer",
+				"outputs": [
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Corporation/Oracle.sol": "IChainlink"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 20000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Corporation/Oracle.sol": {
+			"keccak256": "0x88a5d112b6a6d41a9f3ba74adb63a3b6fe725bfd818c315578a5d16acedf4def",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c8661da3185d6d795277a408f3cce1f9bd66b75e0737f16ce90698cc00da94a1",
+				"dweb:/ipfs/QmbseNtKfrFACmmdDURXL5WgGrLgzrwQwSHnRZgvtN1usZ"
+			]
+		}
+	},
+	"version": 1
+}

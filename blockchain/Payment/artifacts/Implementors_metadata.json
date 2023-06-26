@@ -1,0 +1,115 @@
+{
+	"compiler": {
+		"version": "0.8.18+commit.87f61d96"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"stateMutability": "nonpayable",
+				"type": "fallback"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_implementor",
+						"type": "address"
+					}
+				],
+				"name": "GetEpochReward",
+				"outputs": [
+					{
+						"internalType": "uint8",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_implementor",
+						"type": "address"
+					}
+				],
+				"name": "GetImplementorProfile",
+				"outputs": [
+					{
+						"internalType": "uint32",
+						"name": "epochSales",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint32",
+						"name": "epochEnd",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint8",
+						"name": "epochReward",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "Name",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Payment/Implementors.sol": "Implementors"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 2000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Payment/Implementors.sol": {
+			"keccak256": "0x17426f4657b90e59ce7151fbbb7db8902ff1e3e92c8a02d57dcfb36bdf408a90",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://12bfcf9feed14384a06660eb8612896c6c0872cc104f0acbebe4907a0b8195a3",
+				"dweb:/ipfs/QmNQRg4iPCFLs9EQu3RQ6P5ypHe4VUpKVJmx1bJJaG2FKj"
+			]
+		}
+	},
+	"version": 1
+}

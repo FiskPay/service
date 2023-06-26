@@ -1,0 +1,77 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "GetMATICDecimals",
+				"outputs": [
+					{
+						"internalType": "uint8",
+						"name": "",
+						"type": "uint8"
+					},
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "GetMATICPrice",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Corporation/Employees.sol": "IOracle"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 20000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Corporation/Employees.sol": {
+			"keccak256": "0xc42a175ceafe03ad9d1d8ac84b7f4feca6d828c45ecc47e24b264f00e23e4c21",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6abcd6988c06fa3b13adb77964c2e84c80f87d77659d2e7546c5c67d8b11030c",
+				"dweb:/ipfs/QmdQTtRaKfXhfVGmBGSz2TsZZ321MDQiFUDyYy4L2wBbY3"
+			]
+		}
+	},
+	"version": 1
+}

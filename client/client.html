@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--
+		
+		FiskPay Payment Button styles
+		
+		Background Colors: bg-dark, bg-light, bg-black, bg-white, bg-dark-grey, bg-light-grey
+		Borderless Button: no-border
+		Sharp Corner Button: sharp-border
+		Colors: dark, light, black, white, dark-grey, light-grey, red, green, blue, velvet, grass, ocean, gold
+
+			
+		-->
+
+<html lang="en">
+
+<head>
+
+	<script src="/client.js/0x41dA7A1e5085179F43758dC5F0a5bBEB012E07F1" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+	<form class="fiskpay">
+
+		<span name="fp-response"></span>
+		<br>
+		<select name="fp-fiat">
+			<option value="crypto" selected>crypto</option>
+			<option value="USD">USD</option>
+			<option value="EUR">EUR</option>
+		</select>
+		<br>
+		<select name="fp-crypto">
+			<option value="MATIC" selected>MATIC</option>
+			<option value="USDT">USDT</option>
+			<option value="USDC">USDC</option>
+			<option value="agEUR">agEUR</option>
+		</select>
+		<br>
+		<input name="fp-amount" type="text">
+		<br>
+		<input name="fp-url" type="hidden" value="http://127.0.0.1:8080/ipn.php">
+		<input name="fp-item1" type="hidden" value="item_to_post_to_ipn_1">
+		<input name="fp-item2" type="hidden" value="item_to_post_to_ipn_2">
+		<input name="fp-item3" type="hidden" value="item_to_post_to_ipn_3">
+		<input name="fp-item4" type="hidden" value="item_to_post_to_ipn_4">
+
+		<input name="fp-submit" type="submit" value="Submit"></input>
+
+	</form>
+
+	<br>
+
+	<form class="fiskpay form bg-dark ocean no-border">
+
+		<span name="fp-response" class="fiskpay-messager"></span>
+
+		<label for="fp-fiat" class="fiskpay-label">Amount in</label>
+		<select name="fp-fiat" class="fiskpay-select">
+			<option value="crypto" selected>crypto</option>
+			<option value="USD">USD</option>
+			<option value="EUR">EUR</option>
+		</select>
+
+		<label for="fp-crypto" class="fiskpay-label">Paying in</label>
+		<select name="fp-crypto" class="fiskpay-select">
+			<option value="MATIC" selected>MATIC</option>
+			<option value="USDT">USDT</option>
+			<option value="USDC">USDC</option>
+			<option value="agEUR">agEUR</option>
+		</select>
+
+		<label for="fp-amount" class="fiskpay-label">Amount</label>
+		<input name="fp-amount" class="fiskpay-input" type="text">
+
+		<input name="fp-url" type="hidden" value="http://127.0.0.1:8080/ipn.php">
+		<input name="fp-item1" type="hidden" value="item_to_post_to_ipn_1">
+		<input name="fp-item2" type="hidden" value="item_to_post_to_ipn_2">
+		<input name="fp-item3" type="hidden" value="item_to_post_to_ipn_3">
+		<input name="fp-item4" type="hidden" value="item_to_post_to_ipn_4">
+
+		<span name="fp-submit" class="fiskpay-pay"></span>
+
+	</form>
+
+</html>

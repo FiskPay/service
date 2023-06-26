@@ -1,0 +1,70 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "subscriber",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "AllowProcessing",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Payment/Processor.sol": "ISubscribers"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 20000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Payment/Processor.sol": {
+			"keccak256": "0x9c3dc8d6517180d3eaeaed4fc407a4dadb79286b48722de884baf299bb9bec51",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4cf714c8809aacf34d6e9bc6bfe72aded9830057b02a03ab8c868cfeb8d650a0",
+				"dweb:/ipfs/QmWmjARZNiXWKTL4vSmDBWaxKHBQLcgqFbBr56vbtyrx2W"
+			]
+		}
+	},
+	"version": 1
+}

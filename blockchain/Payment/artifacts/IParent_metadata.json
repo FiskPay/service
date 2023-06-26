@@ -1,0 +1,78 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					}
+				],
+				"name": "GetContractAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "Owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Payment/Subscribers.sol": "IParent"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 20000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Payment/Subscribers.sol": {
+			"keccak256": "0x5359591030cb5590d53be9ef542c4b65031f1dfd6e8907217b564bd14f68e5fc",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://797433ff9fa963e32714881b4fe06fec75c3e23f51d1c79d08ca1aae2ca537c3",
+				"dweb:/ipfs/QmToGUTyTH3SbT2R7meYg73no3GVvRHLfyQrb5T95zNYWU"
+			]
+		}
+	},
+	"version": 1
+}
