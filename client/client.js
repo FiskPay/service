@@ -25,30 +25,31 @@ let buttonIDListCount = 0;
 
 onload = () => {
 
-	let paymentButtons = document.getElementsByClassName("fiskpay");
+	const paymentButtons = document.getElementsByClassName("fiskpay");
 	let seed = Date.now() + 51312645;
 
 	for (let i = 0; i < paymentButtons.length; i++) {
 
-		let paymentButton = paymentButtons[i];
+		const paymentButton = paymentButtons[i];
 
 		paymentButton.id = "fp-" + CryptoJS.SHA256(seed.toString() + "!!@xXx");
 		buttonIDList.push(paymentButton.id);
 
-		let fpresponse = paymentButton.querySelectorAll('[name="fp-response"]');
-		let fpfiat = paymentButton.querySelectorAll('[name="fp-fiat"]');
-		let fpcrypto = paymentButton.querySelectorAll('[name="fp-crypto"]');
-		let fpamount = paymentButton.querySelectorAll('[name="fp-amount"]');
-		let fpurl = paymentButton.querySelectorAll('[name="fp-url"]');
-		let fpitem1 = paymentButton.querySelectorAll('[name="fp-item1"]');
-		let fpitem2 = paymentButton.querySelectorAll('[name="fp-item2"]');
-		let fpitem3 = paymentButton.querySelectorAll('[name="fp-item3"]');
-		let fpitem4 = paymentButton.querySelectorAll('[name="fp-item4"]');
-		let fpsubmit = paymentButton.querySelectorAll('[name="fp-submit"]');
+		const fpresponse = paymentButton.querySelectorAll('[name="fp-response"]');
+		const fpfiat = paymentButton.querySelectorAll('[name="fp-fiat"]');
+		const fpcrypto = paymentButton.querySelectorAll('[name="fp-crypto"]');
+		const fpamount = paymentButton.querySelectorAll('[name="fp-amount"]');
+		const fpurl = paymentButton.querySelectorAll('[name="fp-url"]');
+		const fpitem1 = paymentButton.querySelectorAll('[name="fp-item1"]');
+		const fpitem2 = paymentButton.querySelectorAll('[name="fp-item2"]');
+		const fpitem3 = paymentButton.querySelectorAll('[name="fp-item3"]');
+		const fpitem4 = paymentButton.querySelectorAll('[name="fp-item4"]');
+		const fpsubmit = paymentButton.querySelectorAll('[name="fp-submit"]');
 
+		const findArray = [fpresponse, fpfiat, fpcrypto, fpamount, fpurl, fpitem1, fpitem2, fpitem3, fpitem4, fpsubmit];
+		const namesArray = ["fp-response", "fp-fiat", "fp-crypto", "fp-amount", "fp-url", "fp-item1", "fp-item2", "fp-item3", "fp-item4", "fp-submit"];
+		
 		let misconfigured = false;
-		let findArray = [fpresponse, fpfiat, fpcrypto, fpamount, fpurl, fpitem1, fpitem2, fpitem3, fpitem4, fpsubmit];
-		let namesArray = ["fp-response", "fp-fiat", "fp-crypto", "fp-amount", "fp-url", "fp-item1", "fp-item2", "fp-item3", "fp-item4", "fp-submit"];
 		let consoleMsg = "";
 
 		for (let j = 0; j < findArray.length; j++) {
@@ -297,7 +298,7 @@ async function Pay(_buttonID) {
 							sendMessage("Transaction limit reached");
 							setTimeout(() => { canProcess = true; }, 1000);
 						}
-						else if (tnow > profileObject.subscribedUntil) {
+						else if (Number(tnow) > Number(profileObject.subscribedUntil)) {
 
 							sendMessage("Subscriber service only");
 							setTimeout(() => { canProcess = true; }, 1000);
