@@ -20,7 +20,7 @@ const urlParameters = new URLSearchParams(url.search);
 let receiverAddress = null;
 let canProcess = false;
 let antiBotTimer = 999999999999999;
-let buttonIDList = [];
+let buttonIDList = new Array();
 let buttonIDListCount = 0;
 
 onload = () => {
@@ -48,7 +48,7 @@ onload = () => {
 
 		const findArray = [fpresponse, fpfiat, fpcrypto, fpamount, fpurl, fpitem1, fpitem2, fpitem3, fpitem4, fpsubmit];
 		const namesArray = ["fp-response", "fp-fiat", "fp-crypto", "fp-amount", "fp-url", "fp-item1", "fp-item2", "fp-item3", "fp-item4", "fp-submit"];
-		
+
 		let misconfigured = false;
 		let consoleMsg = "";
 
