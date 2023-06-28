@@ -19,24 +19,26 @@ const orders = new Orders(orderstDir, serverDir, 1, 5);
 const triggerRetryAttempts = 5;
 const triggerRetrySeconds = 120;
 
-const websocketWhitelist = [myENV.websocketClientAddress1, myENV.websocketClientAddress2, myENV.websocketClientAddress3];
-const temporaryHttpServer = new createServer();
-const websocketServer = new Server();
+const wsOptions = { cors: { origin: "*", credentials: true, optionSuccessStatus: 200 } };
+const wsWhitelist = [myENV.websocketClientAddress1, myENV.websocketClientAddress2, myENV.websocketClientAddress3];
+
+const httpServer = new createServer();
+const wsServer = new Server(httpServer, wsOptions);
 
 function trigger(iOrderPath, iforce) {
 
-    if (websocketServer.sockets.adapter.rooms.get("ProxyServer").size > 0) {
+    if (wsServer.sockets.adapter.rooms.get("ProxyServer").size > 0) {
 
         const triggerObject = orders.getTriggerObject(iOrderPath);
 
-        if (triggerObject && triggerObject.body) {
+        if (triggerObject && triggerObject.postData) {
 
             if (triggerObject.claimed === 0 && triggerObject.triggerCount <= triggerRetryAttempts) {
 
                 if (iforce || (Math.floor(Date.now() / 1000) - triggerObject.triggerTimestamp) >= triggerRetrySeconds) {
 
                     orders.updatePendingList(iOrderPath);
-                    websocketServer.to("ProxyServer").emit("triggerCustomer", triggerObject.url, triggerObject.body);  //Main to Proxy
+                    wsServer.to("ProxyServer").emit("triggerCustomer", triggerObject.url, triggerObject.postData);  //Main to Proxy
                 }
             }
             else {
@@ -48,24 +50,24 @@ function trigger(iOrderPath, iforce) {
     }
 }
 
-websocketServer.on("connection", (websocketClient) => {
+wsServer.on("connection", (wsClient) => {
 
-    let websocketClientAddress = websocketClient.handshake.address;
+    let wsClientAddress = wsClient.handshake.address;
 
-    if (websocketClientAddress.slice(0, 7) == "::ffff:")
-        websocketClientAddress = websocketClientAddress.slice(7);
+    if (wsClientAddress.slice(0, 7) == "::ffff:")
+        wsClientAddress = wsClientAddress.slice(7);
 
-    if (!websocketWhitelist.includes(websocketClientAddress)) {
+    if (!wsWhitelist.includes(wsClientAddress)) {
 
-        websocketClient.disconnect();
-        console.log("[" + dateTime() + "] MainServer  >>  Client " + websocketClientAddress + " connection rejected");
+        wsClient.disconnect();
+        console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " connection rejected");
     }
     else {
 
-        websocketClient.on("createOrder", async (orderObject) => { //Proxy to Main
+        wsClient.on("createOrder", async (orderObject) => { //Proxy to Main
 
             const responseObject = await orders.createOrder(orderObject);
-            websocketServer.to("ProxyServer").emit("createOrderResponse", responseObject); //Main to Proxy
+            wsServer.to("ProxyServer").emit("createOrderResponse", responseObject); //Main to Proxy
 
         }).on("claimOrder", (encryptedOrderPath) => { //Proxy to Main
 
@@ -82,16 +84,16 @@ websocketServer.on("connection", (websocketClient) => {
                 else
                     orders.moveToFailed(orderPath);
 
-                websocketServer.to("ProxyServer").emit("claimOrderResponse", responseObject); //Main to Proxy
+                wsServer.to("ProxyServer").emit("claimOrderResponse", responseObject); //Main to Proxy
             }
             else
-                websocketServer.to("ProxyServer").emit("claimOrderResponse", false); //Main to Proxy
+                wsServer.to("ProxyServer").emit("claimOrderResponse", false); //Main to Proxy
         }).on("newTransaction", (network, transactionHash, verification, timestamp) => { //Back to Main
 
             if (!transactions.exists(transactionHash)) {
 
                 transactions.push(transactionHash);
-                websocketServer.to("BackServer").emit("pushTransaction", transactionHash); //Main to Back
+                wsServer.to("BackServer").emit("pushTransaction", transactionHash); //Main to Back
 
                 const orderPath = orders.setAsPaid(network, transactionHash, verification, timestamp);
 
@@ -114,7 +116,7 @@ websocketServer.on("connection", (websocketClient) => {
                     if (!transactions.exists(transactionHash)) {
 
                         transactions.push(transactionHash);
-                        websocketServer.to("BackServer").emit("pushTransaction", transactionHash); ////Main to Back
+                        wsServer.to("BackServer").emit("pushTransaction", transactionHash); ////Main to Back
 
                         const network = transactionData[0];
                         const verification = transactionData[2];
@@ -130,33 +132,31 @@ websocketServer.on("connection", (websocketClient) => {
                 };
             }
 
-            websocketClient.emit("clearTransactionsPacket"); //Main to Client
+            wsClient.emit("clearTransactionsPacket"); //Main to Client
 
         }).on("join-room", (room) => {
 
-            websocketClient.join(room);
-            websocketClient.emit("joined-room", room); //Main to Client
+            wsClient.join(room);
+            wsClient.emit("joined-room", room); //Main to Client
 
-            console.log("[" + dateTime() + "] MainServer  >>  Client " + websocketClientAddress + " connected as " + room);
+            console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " connected as " + room);
 
         }).on("disconnect", () => {
 
-            console.log("[" + dateTime() + "] MainServer  >>  Client " + websocketClientAddress + " disconnected");
+            console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " disconnected");
 
         });
 
-        console.log("[" + dateTime() + "] MainServer  >>  Client " + websocketClientAddress + " connected");
     }
 });
 
-temporaryHttpServer.listen(myENV.websocketServerPort, () => {
+httpServer.listen(myENV.websocketServerPort, () => {
 
-    websocketServer.attach(temporaryHttpServer);
     console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.websocketServerPort);
 
     setInterval(() => {
 
-        if (websocketServer.sockets.adapter.rooms.get("ProxyServer")) {
+        if (wsServer.sockets.adapter.rooms.get("ProxyServer")) {
 
             const pendingOrders = orders.getPendingList();
 

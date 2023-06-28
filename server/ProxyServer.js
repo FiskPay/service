@@ -3,20 +3,19 @@ import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
 
-import { createServer } from "http";
 import { io } from "socket.io-client";
 
 import { dateTime } from "./functions/dateTools.js";
 
 const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
 
-const httpServerHandler = new express();
+const httpServer = new express();
 const corsOptions = { origin: "*", credentials: true, optionSuccessStatus: 200 };
 
-httpServerHandler.use(cors(corsOptions));
-httpServerHandler.use(express.json());
-httpServerHandler.use(express.urlencoded({ extended: true }));
-httpServerHandler.use((req, res, next) => {
+httpServer.use(cors(corsOptions));
+httpServer.use(express.json());
+httpServer.use(express.urlencoded({ extended: true }));
+httpServer.use((req, res, next) => {
 
     try {
 
@@ -36,8 +35,7 @@ httpServerHandler.use((req, res, next) => {
     }
 });
 
-const httpServer = new createServer(httpServerHandler);
-const client = io("ws://" + myENV.mainServerAddress + ":" + myENV.websocketServerPort, { 'autoConnect': false, 'reconnection': true, 'reconnectionDelay': 1000, 'reconnectionAttempts': Infinity });
+const wsClient = io("ws://" + myENV.mainServerAddress + ":" + myENV.websocketServerPort, { 'autoConnect': false, 'reconnection': true, 'reconnectionDelay': 1000, 'reconnectionAttempts': Infinity });
 
 let connectedToMainServer = false;
 /*let pendingCreate = 0;
@@ -45,7 +43,7 @@ let pendingClaim = 0;
 let unservedCreate = 0;
 let unservedClaim = 0;*/
 
-httpServerHandler.post("/createOrder*", async (req, res) => {
+httpServer.post("/createOrder*", async (req, res) => {
 
     if (!connectedToMainServer) {
 
@@ -64,11 +62,11 @@ httpServerHandler.post("/createOrder*", async (req, res) => {
         /*pendingCreate++;
         console.log("[" + dateTime() + "] ProxyServer  >>  New create request. Awaiting response for " + pendingCreate + " order(s)");*/
 
-        client.emit("createOrder", req.body);
+        wsClient.emit("createOrder", req.body);
 
         let responseObject = await new Promise((resolve) => {
 
-            client.once("createOrderResponse", (responseObject) => {
+            wsClient.once("createOrderResponse", (responseObject) => {
 
                 /*pendingCreate--;
                 console.log("[" + dateTime() + "] ProxyServer  >>  Created " + responseObject.data.verification + " (" + responseObject.data.network + ")");
@@ -102,11 +100,11 @@ httpServerHandler.post("/createOrder*", async (req, res) => {
         /*pendingClaim++;
         console.log("[" + dateTime() + "] ProxyServer  >>  New claim request. Awaiting response for " + pendingClaim + " order(s)");*/
 
-        client.emit("claimOrder", req.params.order);
+        wsClient.emit("claimOrder", req.params.order);
 
         let responseObject = await new Promise((resolve) => {
 
-            client.once("claimOrderResponse", (responseObject) => {
+            wsClient.once("claimOrderResponse", (responseObject) => {
 
                 /*pendingClaim--;
 
@@ -140,18 +138,18 @@ httpServerHandler.post("/createOrder*", async (req, res) => {
     res.status(404).type("html").send("<h1>404! Page not found</h1>").end();
 });
 
-client.on("triggerCustomer", (iURL, iBody) => {
+wsClient.on("triggerCustomer", (iUrl, iPostData) => {
 
-    //console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iURL);
+    //console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl);
 
-    fetch(iURL, {
+    fetch(iUrl, {
 
         method: "post",
         headers: {
             'Accept': 'text/plain',
             'Content-Type': 'text/plain'
         },
-        body: iBody
+        body: iPostData
     })
 
 }).on("connect", () => {
@@ -160,8 +158,7 @@ client.on("triggerCustomer", (iURL, iBody) => {
     /*unservedCreate = 0;
     unservedClaim = 0;*/
 
-    client.emit("join-room", "ProxyServer");
-    console.log("[" + dateTime() + "] ProxyServer  >>  Connected to MainServer");
+    wsClient.emit("join-room", "ProxyServer");
 
 }).on("joined-room", (room) => {
 
@@ -171,7 +168,7 @@ client.on("triggerCustomer", (iURL, iBody) => {
 
     connectedToMainServer = false;
 
-    console.log("[" + dateTime() + "] ProxyServer  >>  Connection to MainServer lost");
+    console.log("[" + dateTime() + "] ProxyServer  >>  Connection lost");
 
 });
 
@@ -179,5 +176,5 @@ httpServer.listen(myENV.httpServerPort, () => {
 
     console.log("[" + dateTime() + "] ProxyServer  >>  Http server online on port " + myENV.httpServerPort);
 
-    client.connect();
+    wsClient.connect();
 });

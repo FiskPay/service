@@ -15,6 +15,8 @@ script.defer = true;
 document.head.appendChild(script);
 
 const url = new URL(document.currentScript.src);
+const urlParameters = new URLSearchParams(url.search);
+
 let receiverAddress = null;
 let canProcess = false;
 let antiBotTimer = 999999999999999;
@@ -94,7 +96,8 @@ onload = () => {
 	};
 
 	buttonIDListCount = buttonIDList.length;
-	receiverAddress = url.pathname.split('/')[2]; //[1]
+	//receiverAddress = url.pathname.split('/')[2]; //[1]
+	receiverAddress = urlParameters.get("addr");
 
 	if (receiverAddress == null)
 		alert("Receiver address is not set. Insert your wallet address in the url, to continue.");
@@ -191,8 +194,9 @@ async function Pay(_buttonID) {
 					const processorABI = [{ "inputs": [{ "internalType": "string", "name": "_symbol", "type": "string" }, { "internalType": "uint256", "name": "_amount", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "bytes32", "name": "_verification", "type": "bytes32" }, { "internalType": "uint32", "name": "_timestamp", "type": "uint32" }], "name": "Process", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "payable", "type": "function" }];
 					const currenciesABI = [{ "inputs": [{ "internalType": "string", "name": "_symbol", "type": "string" }], "name": "GetCurrencyAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }];
 					const subscribersABI = [{ "inputs": [], "name": "GetTransactionsPerSeason", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_client", "type": "address" }], "name": "Profile", "outputs": [{ "internalType": "address", "name": "referredBy", "type": "address" }, { "internalType": "uint32", "name": "referralCount", "type": "uint32" }, { "internalType": "uint256", "name": "referralEarnings", "type": "uint256" }, { "internalType": "uint32", "name": "transactionCount", "type": "uint32" }, { "internalType": "uint32", "name": "lastTransaction", "type": "uint32" }, { "internalType": "bool", "name": "isSubscriber", "type": "bool" }, { "internalType": "uint32", "name": "subscribedUntil", "type": "uint32" }, { "internalType": "uint32", "name": "subscribtionDaysLeft", "type": "uint32" }, { "internalType": "uint32", "name": "nextSeason", "type": "uint32" }, { "internalType": "uint32", "name": "seasonDaysLeft", "type": "uint32" }], "stateMutability": "view", "type": "function" }];
+					const cryptoABI = [{ "constant": false, "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "name": "balance", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }, { "name": "_spender", "type": "address" }], "name": "allowance", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }];
 
-					let web3Instance = new Web3(provider);
+					const web3Instance = new Web3(provider);
 					web3Instance.eth.transactionBlockTimeout = 12000;
 					web3Instance.eth.transactionPollingTimeout = 400000;
 
@@ -205,47 +209,84 @@ async function Pay(_buttonID) {
 
 					const parentContract = await new web3Instance.eth.Contract(parentABI, parentAddress);
 
-					let processorAddress = await parentContract.methods.GetContractAddress(".Payment.Processor").call({ from: senderCurrentAddress });
+					const processorAddress = await parentContract.methods.GetContractAddress(".Payment.Processor").call({ from: senderCurrentAddress });
 					const processorContract = await new web3Instance.eth.Contract(processorABI, processorAddress);
 
-					let currenciesAddress = await parentContract.methods.GetContractAddress(".Payment.Currencies").call({ from: senderCurrentAddress });
+					const currenciesAddress = await parentContract.methods.GetContractAddress(".Payment.Currencies").call({ from: senderCurrentAddress });
 					const currenciesContract = await new web3Instance.eth.Contract(currenciesABI, currenciesAddress);
 
-					let subscribersAddress = await parentContract.methods.GetContractAddress(".Payment.Subscribers").call({ from: senderCurrentAddress });
+					const subscribersAddress = await parentContract.methods.GetContractAddress(".Payment.Subscribers").call({ from: senderCurrentAddress });
 					const subscribersContract = await new web3Instance.eth.Contract(subscribersABI, subscribersAddress);
 
 					let fiatSymbol = paymentButton.querySelectorAll('[name="fp-fiat"]')[0].value;
 					let cryptoSymbol = paymentButton.querySelectorAll('[name="fp-crypto"]')[0].value;
-					let inputAmount = paymentButton.querySelectorAll('[name="fp-amount"]')[0].value;
+					const inputAmount = paymentButton.querySelectorAll('[name="fp-amount"]')[0].value;
 
-					let postURL = paymentButton.querySelectorAll('[name="fp-url"]')[0].value;
-					let postItem1 = paymentButton.querySelectorAll('[name="fp-item1"]')[0].value;
-					let postItem2 = paymentButton.querySelectorAll('[name="fp-item2"]')[0].value;
-					let postItem3 = paymentButton.querySelectorAll('[name="fp-item3"]')[0].value;
-					let postItem4 = paymentButton.querySelectorAll('[name="fp-item4"]')[0].value;
+					const postURL = paymentButton.querySelectorAll('[name="fp-url"]')[0].value;
+					const postItem1 = paymentButton.querySelectorAll('[name="fp-item1"]')[0].value;
+					const postItem2 = paymentButton.querySelectorAll('[name="fp-item2"]')[0].value;
+					const postItem3 = paymentButton.querySelectorAll('[name="fp-item3"]')[0].value;
+					const postItem4 = paymentButton.querySelectorAll('[name="fp-item4"]')[0].value;
 
 					if (cryptoSymbol.toLowerCase() == "matic")
 						cryptoSymbol = "MATIC";
 
-					let cryptoAddress = await currenciesContract.methods.GetCurrencyAddress(cryptoSymbol).call({ from: senderCurrentAddress });
+					if (fiatSymbol.toLowerCase() == "crypto")
+						fiatSymbol = "crypto";
+
+					const cryptoAddress = await currenciesContract.methods.GetCurrencyAddress(cryptoSymbol).call({ from: senderCurrentAddress });
 
 					if (((cryptoAddress == "0x0000000000000000000000000000000000000000" && network == 0x89) || network == 0x13881) && cryptoSymbol != "MATIC") {
 
 						sendMessage(cryptoSymbol + " is not supported");
 						setTimeout(() => { canProcess = true; }, 1000);
 					}
+					else if (!((/^[a-zA-Z]{3}$/).test(fiatSymbol) || fiatSymbol == "crypto")) {
+
+						sendMessage("Unaccepted fiat symbol");
+						setTimeout(() => { canProcess = true; }, 1000);
+					}
+					else if (inputAmount.toString() == "") {
+
+						sendMessage("Insert amount");
+						setTimeout(() => { canProcess = true; }, 1000);
+					}
 					else if (!((/^[0-9]+(\.[0-9]+)?$/).test(inputAmount.toString()))) {
 
-						sendMessage("Wrong input amount format");
+						sendMessage("Unaccepted amount format");
 						setTimeout(() => { canProcess = true; }, 1000);
 					}
 					else if (inputAmount == 0) {
 
-						sendMessage("Input amount is zero");
+						sendMessage("Amount is zero");
+						setTimeout(() => { canProcess = true; }, 1000);
+					}
+					else if (!(/^https?:\/\/(((www\.)?([a-zA-Z]+\-?[a-zA-Z]+\.)+[a-zA-Z]{2,7})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))((:6553[0-5]|:655[0-2][0-9]|:65[0-4][0-9]{2}|:6[0-4][0-9]{3}|:[1-5][0-9]{4}|:[0-5]{0,5}|:[0-9]{1,4}))?([a-zA-Z0-9_\-\/])*(\.[a-zA-Z]{1,5})?/).test(postURL)) {
+
+						sendMessage("Unaccepted postURL");
+						setTimeout(() => { canProcess = true; }, 1000);
+					}
+					else if ((/exec\((.*)\)/).test(postItem1)) {
+
+						sendMessage("Unaccepted postItem1");
+						setTimeout(() => { canProcess = true; }, 1000);
+					}
+					else if ((/exec\((.*)\)/).test(postItem2)) {
+
+						sendMessage("Unaccepted postItem2");
+						setTimeout(() => { canProcess = true; }, 1000);
+					}
+					else if ((/exec\((.*)\)/).test(postItem3)) {
+
+						sendMessage("Unaccepted postItem3");
+						setTimeout(() => { canProcess = true; }, 1000);
+					}
+					else if ((/exec\((.*)\)/).test(postItem4)) {
+
+						sendMessage("Unaccepted postItem4");
 						setTimeout(() => { canProcess = true; }, 1000);
 					}
 					else {
-
 
 						const profileObject = await subscribersContract.methods.Profile(receiverAddress).call({ from: senderCurrentAddress });
 						const transactionsPerSeason = await subscribersContract.methods.GetTransactionsPerSeason().call({ from: senderCurrentAddress });
@@ -397,9 +438,6 @@ async function Pay(_buttonID) {
 											const processVerification = responseObject.data.verification;
 											const processTimestamp = responseObject.data.timestamp;
 
-											const profileObject = await subscribersContract.methods.Profile(receiverAddress).call({ from: senderCurrentAddress });
-											const now = Math.floor(Date.now() / 1000);
-
 											if (cryptoSymbol == "MATIC") {
 
 												web3Instance.eth.getBalance(senderCurrentAddress)
@@ -416,8 +454,7 @@ async function Pay(_buttonID) {
 											}
 											else {
 
-												const cryptoABI = [{ "constant": false, "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "name": "balance", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }, { "name": "_spender", "type": "address" }], "name": "allowance", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }];
-												let cryptoContract = await new web3Instance.eth.Contract(cryptoABI, cryptoAddress);
+												const cryptoContract = await new web3Instance.eth.Contract(cryptoABI, cryptoAddress);
 
 												cryptoContract.methods.balanceOf(senderCurrentAddress).call({ from: senderCurrentAddress })
 													.then((balance) => {

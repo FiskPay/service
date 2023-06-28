@@ -67,7 +67,7 @@ export default class Orders extends EventEmitter {
 
         super();
 
-        this.#myENV  = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
+        this.#myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
 
         this.#ordersDir = ordersDir;
 
@@ -126,7 +126,8 @@ export default class Orders extends EventEmitter {
         if (!(iOrderObject.amount != undefined && pattern.test(iOrderObject.amount)))
             return false;
 
-        pattern = (/^https?:\/\/(www\.)?[a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,6}\b([a-zA-Z0-9\._?&\/:=]*)$/);
+        //pattern = (/^https?:\/\/(www\.)?[a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,6}\b([a-zA-Z0-9\._?&\/:=]*)$/);
+        pattern = (/^https?:\/\/(((www\.)?([a-zA-Z]+\-?[a-zA-Z]+\.)+[a-zA-Z]{2,7})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))((:6553[0-5]|:655[0-2][0-9]|:65[0-4][0-9]{2}|:6[0-4][0-9]{3}|:[1-5][0-9]{4}|:[0-5]{0,5}|:[0-9]{1,4}))?([a-zA-Z0-9_\-\/])*(\.[a-zA-Z]{1,5})?/);
 
         if (!(iOrderObject.postURL != undefined && pattern.test(iOrderObject.postURL)))
             return false;
@@ -196,11 +197,11 @@ export default class Orders extends EventEmitter {
         const amount = Number(iOrderObject.amount);
         const multiplier = (fiatSymbol != "crypto") ? (1 / (cryptoPrice * fiatPrice)) : (1);
 
-        const payFloatAmount = Number((amount * multiplier).toFixed(18));
+        const payAmountFloat = Number((amount * multiplier).toFixed(18));
 
-        const cryptoAmountFloat = payFloatAmount.toFixed(6);
-        const cryptoAmountInteger = float2Integer(payFloatAmount, cryptoDecimals);
-        const cryptoTotalUSDValue = (payFloatAmount * cryptoPrice).toFixed(6);
+        const cryptoAmountFloat = payAmountFloat.toFixed(6);
+        const cryptoAmountInteger = float2Integer(payAmountFloat, cryptoDecimals);
+        const cryptoTotalUSDValue = (payAmountFloat * cryptoPrice).toFixed(6);
         const cryptoUnitUSDValue = cryptoPrice.toFixed(6);
 
         const fiatAmountFloat = (fiatSymbol != "crypto") ? (amount.toFixed(6)) : (null);
@@ -547,7 +548,7 @@ export default class Orders extends EventEmitter {
         triggerObject.triggerCount = this.#pendingOrdersObject[iOrderFilePath].triggerCount;
 
         triggerObject.url = orderObject.order.postData.url;
-        triggerObject.body = this.#encryptData(iOrderFilePath);
+        triggerObject.postData = this.#encryptData(iOrderFilePath);
         triggerObject.claimed = orderObject.order.claimCounter;
 
         return triggerObject;
