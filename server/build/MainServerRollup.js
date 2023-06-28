@@ -68,7 +68,7 @@ class AES256 {
         }
     }
 
-    #extraSeed = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed.extraAESSeed;
+    #extraSeed = dotenv.config({ path: "./server/private/.env" }).parsed.extraAESSeed;
 
     encrypt(data, seed) {
 
@@ -184,7 +184,7 @@ class Orders extends EventEmitter {
 
         super();
 
-        this.#myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
+        this.#myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
         this.#ordersDir = ordersDir;
 
@@ -243,7 +243,8 @@ class Orders extends EventEmitter {
         if (!(iOrderObject.amount != undefined && pattern.test(iOrderObject.amount)))
             return false;
 
-        pattern = (/^https?:\/\/(www\.)?[a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,6}\b([a-zA-Z0-9\._?&\/:=]*)$/);
+        //pattern = (/^https?:\/\/(www\.)?[a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,6}\b([a-zA-Z0-9\._?&\/:=]*)$/);
+        pattern = (/^https?:\/\/(((www\.)?([a-zA-Z]+\-?[a-zA-Z]+\.)+[a-zA-Z]{2,7})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))((:6553[0-5]|:655[0-2][0-9]|:65[0-4][0-9]{2}|:6[0-4][0-9]{3}|:[1-5][0-9]{4}|:[0-5]{0,5}|:[0-9]{1,4}))?([a-zA-Z0-9_\-\/])*(\.[a-zA-Z]{1,5})?/);
 
         if (!(iOrderObject.postURL != undefined && pattern.test(iOrderObject.postURL)))
             return false;
@@ -313,11 +314,11 @@ class Orders extends EventEmitter {
         const amount = Number(iOrderObject.amount);
         const multiplier = (fiatSymbol != "crypto") ? (1 / (cryptoPrice * fiatPrice)) : (1);
 
-        const payFloatAmount = Number((amount * multiplier).toFixed(18));
+        const payAmountFloat = Number((amount * multiplier).toFixed(18));
 
-        const cryptoAmountFloat = payFloatAmount.toFixed(6);
-        const cryptoAmountInteger = float2Integer(payFloatAmount, cryptoDecimals);
-        const cryptoTotalUSDValue = (payFloatAmount * cryptoPrice).toFixed(6);
+        const cryptoAmountFloat = payAmountFloat.toFixed(6);
+        const cryptoAmountInteger = float2Integer(payAmountFloat, cryptoDecimals);
+        const cryptoTotalUSDValue = (payAmountFloat * cryptoPrice).toFixed(6);
         const cryptoUnitUSDValue = cryptoPrice.toFixed(6);
 
         const fiatAmountFloat = (fiatSymbol != "crypto") ? (amount.toFixed(6)) : (null);
@@ -664,7 +665,7 @@ class Orders extends EventEmitter {
         triggerObject.triggerCount = this.#pendingOrdersObject[iOrderFilePath].triggerCount;
 
         triggerObject.url = orderObject.order.postData.url;
-        triggerObject.body = this.#encryptData(iOrderFilePath);
+        triggerObject.postData = this.#encryptData(iOrderFilePath);
         triggerObject.claimed = orderObject.order.claimCounter;
 
         return triggerObject;
@@ -698,35 +699,37 @@ class Orders extends EventEmitter {
     }
 }
 
-const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
+const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
 const transactions = new DataLoop(30);
 const packets = new DataLoop(10);
 
-const orderstDir = "M:/Workspaces/service/server/private/ordersBucket/";
-const serverDir = "M:/Workspaces/service/server/private/serverBucket/";
+const orderstDir = "./server/private/ordersBucket/";
+const serverDir = "./server/private/serverBucket/";
 const orders = new Orders(orderstDir, serverDir, 1, 5);
 const triggerRetryAttempts = 5;
 const triggerRetrySeconds = 120;
 
-const websocketWhitelist = [myENV.websocketClientAddress1, myENV.websocketClientAddress2, myENV.websocketClientAddress3];
-const temporaryHttpServer = new http.createServer();
-const websocketServer = new socket_io.Server();
+const wsOptions = { cors: { origin: "*", credentials: true, optionSuccessStatus: 200 } };
+const wsWhitelist = [myENV.wsClientAddress1, myENV.wsClientAddress2, myENV.httpServerAddress];
+
+const httpServer = new http.createServer();
+const wsServer = new socket_io.Server(httpServer, wsOptions);
 
 function trigger(iOrderPath, iforce) {
 
-    if (websocketServer.sockets.adapter.rooms.get("ProxyServer").size > 0) {
+    if (wsServer.sockets.adapter.rooms.get("ProxyServer").size > 0) {
 
         const triggerObject = orders.getTriggerObject(iOrderPath);
 
-        if (triggerObject && triggerObject.body) {
+        if (triggerObject && triggerObject.postData) {
 
             if (triggerObject.claimed === 0 && triggerObject.triggerCount <= triggerRetryAttempts) {
 
                 if (iforce || (Math.floor(Date.now() / 1000) - triggerObject.triggerTimestamp) >= triggerRetrySeconds) {
 
                     orders.updatePendingList(iOrderPath);
-                    websocketServer.to("ProxyServer").emit("triggerCustomer", triggerObject.url, triggerObject.body);  //Main to Proxy
+                    wsServer.to("ProxyServer").emit("triggerCustomer", triggerObject.url, triggerObject.postData);  //Main to Proxy
                 }
             }
             else {
@@ -738,24 +741,24 @@ function trigger(iOrderPath, iforce) {
     }
 }
 
-websocketServer.on("connection", (websocketClient) => {
+wsServer.on("connection", (wsClient) => {
 
-    let websocketClientAddress = websocketClient.handshake.address;
+    let wsClientAddress = wsClient.handshake.address;
 
-    if (websocketClientAddress.slice(0, 7) == "::ffff:")
-        websocketClientAddress = websocketClientAddress.slice(7);
+    if (wsClientAddress.slice(0, 7) == "::ffff:")
+        wsClientAddress = wsClientAddress.slice(7);
 
-    if (!websocketWhitelist.includes(websocketClientAddress)) {
+    if (!wsWhitelist.includes(wsClientAddress)) {
 
-        websocketClient.disconnect();
-        console.log("[" + dateTime() + "] MainServer  >>  Client " + websocketClientAddress + " connection rejected");
+        wsClient.disconnect();
+        console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " connection rejected");
     }
     else {
 
-        websocketClient.on("createOrder", async (orderObject) => { //Proxy to Main
+        wsClient.on("createOrder", async (orderObject) => { //Proxy to Main
 
             const responseObject = await orders.createOrder(orderObject);
-            websocketServer.to("ProxyServer").emit("createOrderResponse", responseObject); //Main to Proxy
+            wsServer.to("ProxyServer").emit("createOrderResponse", responseObject); //Main to Proxy
 
         }).on("claimOrder", (encryptedOrderPath) => { //Proxy to Main
 
@@ -772,16 +775,16 @@ websocketServer.on("connection", (websocketClient) => {
                 else
                     orders.moveToFailed(orderPath);
 
-                websocketServer.to("ProxyServer").emit("claimOrderResponse", responseObject); //Main to Proxy
+                wsServer.to("ProxyServer").emit("claimOrderResponse", responseObject); //Main to Proxy
             }
             else
-                websocketServer.to("ProxyServer").emit("claimOrderResponse", false); //Main to Proxy
+                wsServer.to("ProxyServer").emit("claimOrderResponse", false); //Main to Proxy
         }).on("newTransaction", (network, transactionHash, verification, timestamp) => { //Back to Main
 
             if (!transactions.exists(transactionHash)) {
 
                 transactions.push(transactionHash);
-                websocketServer.to("BackServer").emit("pushTransaction", transactionHash); //Main to Back
+                wsServer.to("BackServer").emit("pushTransaction", transactionHash); //Main to Back
 
                 const orderPath = orders.setAsPaid(network, transactionHash, verification, timestamp);
 
@@ -804,7 +807,7 @@ websocketServer.on("connection", (websocketClient) => {
                     if (!transactions.exists(transactionHash)) {
 
                         transactions.push(transactionHash);
-                        websocketServer.to("BackServer").emit("pushTransaction", transactionHash); ////Main to Back
+                        wsServer.to("BackServer").emit("pushTransaction", transactionHash); ////Main to Back
 
                         const network = transactionData[0];
                         const verification = transactionData[2];
@@ -817,36 +820,33 @@ websocketServer.on("connection", (websocketClient) => {
 
                         //console.log("[" + dateTime() + "] MainServer  >>  " + network + " historic transaction received (" + verification + ")");
                     }
-                }
-            }
+                }            }
 
-            websocketClient.emit("clearTransactionsPacket"); //Main to Client
+            wsClient.emit("clearTransactionsPacket"); //Main to Client
 
         }).on("join-room", (room) => {
 
-            websocketClient.join(room);
-            websocketClient.emit("joined-room", room); //Main to Client
+            wsClient.join(room);
+            wsClient.emit("joined-room", room); //Main to Client
 
-            console.log("[" + dateTime() + "] MainServer  >>  Client " + websocketClientAddress + " connected as " + room);
+            console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " connected as " + room);
 
         }).on("disconnect", () => {
 
-            console.log("[" + dateTime() + "] MainServer  >>  Client " + websocketClientAddress + " disconnected");
+            console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " disconnected");
 
         });
 
-        console.log("[" + dateTime() + "] MainServer  >>  Client " + websocketClientAddress + " connected");
     }
 });
 
-temporaryHttpServer.listen(myENV.websocketServerPort, () => {
+httpServer.listen(myENV.wsServerPort, () => {
 
-    websocketServer.attach(temporaryHttpServer);
-    console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.websocketServerPort);
+    console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.wsServerPort);
 
     setInterval(() => {
 
-        if (websocketServer.sockets.adapter.rooms.get("ProxyServer")) {
+        if (wsServer.sockets.adapter.rooms.get("ProxyServer")) {
 
             const pendingOrders = orders.getPendingList();
 

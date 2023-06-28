@@ -8,7 +8,7 @@ import { dateTime } from "./functions/dateTools.js";
 
 import { io } from "socket.io-client";
 
-const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
+const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
 const mainnetProviderURLs = [myENV.mainnetProvider1, myENV.mainnetProvider2];
 const testnetProviderURLs = [myENV.testnetProvider1, myENV.testnetProvider2];
@@ -21,7 +21,7 @@ let testnetConnectedListeners = 0;
 
 const transactions = new DataLoop(30);
 const listener = new Listener();
-const wsClient = io("ws://" + myENV.mainServerAddress + ":" + myENV.websocketServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
+const wsClient = io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
 
 let connectedToMainServer = false;
 let transactionsPacket = [];

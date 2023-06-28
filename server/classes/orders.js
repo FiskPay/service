@@ -67,7 +67,7 @@ export default class Orders extends EventEmitter {
 
         super();
 
-        this.#myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
+        this.#myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
         this.#ordersDir = ordersDir;
 

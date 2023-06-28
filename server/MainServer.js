@@ -8,19 +8,19 @@ import { dateTime } from "./functions/dateTools.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
+const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
 const transactions = new DataLoop(30);
 const packets = new DataLoop(10);
 
-const orderstDir = "M:/Workspaces/service/server/private/ordersBucket/";
-const serverDir = "M:/Workspaces/service/server/private/serverBucket/";
+const orderstDir = "./server/private/ordersBucket/";
+const serverDir = "./server/private/serverBucket/";
 const orders = new Orders(orderstDir, serverDir, 1, 5);
 const triggerRetryAttempts = 5;
 const triggerRetrySeconds = 120;
 
 const wsOptions = { cors: { origin: "*", credentials: true, optionSuccessStatus: 200 } };
-const wsWhitelist = [myENV.websocketClientAddress1, myENV.websocketClientAddress2, myENV.websocketClientAddress3];
+const wsWhitelist = [myENV.wsClientAddress1, myENV.wsClientAddress2, myENV.httpServerAddress];
 
 const httpServer = new createServer();
 const wsServer = new Server(httpServer, wsOptions);
@@ -150,9 +150,9 @@ wsServer.on("connection", (wsClient) => {
     }
 });
 
-httpServer.listen(myENV.websocketServerPort, () => {
+httpServer.listen(myENV.wsServerPort, () => {
 
-    console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.websocketServerPort);
+    console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.wsServerPort);
 
     setInterval(() => {
 

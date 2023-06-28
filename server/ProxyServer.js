@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 
 import { dateTime } from "./functions/dateTools.js";
 
-const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
+const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
 const httpServer = new express();
 const corsOptions = { origin: "*", credentials: true, optionSuccessStatus: 200 };
@@ -35,7 +35,7 @@ httpServer.use((req, res, next) => {
     }
 });
 
-const wsClient = io("ws://" + myENV.mainServerAddress + ":" + myENV.websocketServerPort, { 'autoConnect': false, 'reconnection': true, 'reconnectionDelay': 1000, 'reconnectionAttempts': Infinity });
+const wsClient = io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
 
 let connectedToMainServer = false;
 /*let pendingCreate = 0;

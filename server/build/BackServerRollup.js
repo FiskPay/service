@@ -207,7 +207,7 @@ function dateTime() {
     return datetime;
 }
 
-const myENV = dotenv.config({ path: "M:/Workspaces/service/server/.env" }).parsed;
+const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
 const mainnetProviderURLs = [myENV.mainnetProvider1, myENV.mainnetProvider2];
 const testnetProviderURLs = [myENV.testnetProvider1, myENV.testnetProvider2];
@@ -220,7 +220,7 @@ let testnetConnectedListeners = 0;
 
 const transactions = new DataLoop(30);
 const listener = new Listener();
-const client = socket_ioClient.io("ws://" + myENV.mainServerAddress + ":" + myENV.websocketServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
+const wsClient = socket_ioClient.io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
 
 let connectedToMainServer = false;
 let transactionsPacket = [];
@@ -241,7 +241,7 @@ listener.on("connectionChange", (network, connectedListeners) => {
         if (!connectedToMainServer)
             transactionsPacket.push([network, transactionHash, verification, timestamp]);
         else
-            client.emit("newTransaction", network, transactionHash, verification, timestamp);
+            wsClient.emit("newTransaction", network, transactionHash, verification, timestamp);
 
         //console.log("[" + dateTime() + "] BackServer  >>  " + network + " transaction received (" + verification + ")");
     }
@@ -250,7 +250,7 @@ listener.on("connectionChange", (network, connectedListeners) => {
 
 });
 
-client.on("pushTransaction", (transactionHash) => {
+wsClient.on("pushTransaction", (transactionHash) => {
 
     if (!transactions.exists(transactionHash))
         transactions.push(transactionHash);
@@ -264,14 +264,13 @@ client.on("pushTransaction", (transactionHash) => {
 
     connectedToMainServer = true;
 
-    client.emit("join-room", "BackServer");
-    console.log("[" + dateTime() + "] BackServer  >>  Connected to MainServer");
+    wsClient.emit("join-room", "BackServer");
 
     if (transactionsPacket.length > 0) {
 
         const packetID = sha256(transactionsPacket).toString();
 
-        client.emit("newTransactionsPacket", packetID, transactionsPacket);
+        wsClient.emit("newTransactionsPacket", packetID, transactionsPacket);
         //console.log("[" + dateTime() + "] BackServer  >>  Emitted " + transactionsPacket.length + " historic transaction(s)");
     }
 
@@ -282,11 +281,11 @@ client.on("pushTransaction", (transactionHash) => {
 }).on("disconnect", () => {
 
     connectedToMainServer = false;
-    console.log("[" + dateTime() + "] BackServer  >>  Connection to MainServer was lost");
+    console.log("[" + dateTime() + "] BackServer  >>  Connection lost");
 
 });
 
-client.connect();
+wsClient.connect();
 
 listener.connect("0x89", "0x163342FAe2bBe3303e5A9ADCe4BC9fb44d0FF062", mainnetProviderURLs);
 listener.connect("0x13881", "0xfc82AD7B08bC6AF0b0046ee8aE6b12df3457DE23", testnetProviderURLs);
