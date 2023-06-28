@@ -138,7 +138,7 @@ export default class Listener extends EventEmitter {
             });
 
             connectedListeners++;
-            this.emit('connectionChange', network, connectedListeners);
+            this.emit('listenerChange', network, connectedListeners);
 
         }
 

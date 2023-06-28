@@ -24,9 +24,9 @@ const listener = new Listener();
 const wsClient = io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
 
 let connectedToMainServer = false;
-let transactionsPacket = [];
+let transactionsPacket = new Array();
 
-listener.on("connectionChange", (network, connectedListeners) => {
+listener.on("listenerChange", (network, connectedListeners) => {
 
     if (network == "0x89")
         mainnetConnectedListeners = connectedListeners;
