@@ -76,6 +76,17 @@ httpServer.post("/createOrder*", async (req, res) => {
 
                 resolve(responseObject);
             });
+
+            setTimeout(() => {
+
+                let responseObject = new Object();
+                responseObject.error = true;
+                responseObject.message = "Request timed out";
+                responseObject.data = {};
+
+                resolve(responseObject);
+
+            }, 15000);
         });
 
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();
@@ -105,7 +116,7 @@ httpServer.post("/createOrder*", async (req, res) => {
         let responseObject = await new Promise((resolve) => {
 
             wsClient.once("claimOrderResponse", (responseObject) => {
-
+                
                 /*pendingClaim--;
 
                 if (responseObject.error == false) {
@@ -129,6 +140,17 @@ httpServer.post("/createOrder*", async (req, res) => {
 
                 resolve(responseObject);
             });
+
+            setTimeout(() => {
+
+                let responseObject = new Object();
+                responseObject.error = true;
+                responseObject.message = "Request timed out";
+                responseObject.data = {};
+
+                resolve(responseObject);
+
+            }, 15000);
         });
 
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();

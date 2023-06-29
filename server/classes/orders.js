@@ -340,8 +340,7 @@ export default class Orders extends EventEmitter {
             return responseObject;
         }
 
-        await this.#updateCrypto(false);
-        await this.#updateFiat(false);
+        await Promise.all([this.#updateCrypto(false), this.#updateFiat(false)]);
 
         const tnow = Math.floor(Date.now() / 1000);
         const [cryptoAmountFloat, cryptoAmountInteger, cryptoTotalUSDValue, cryptoUnitUSDValue, fiatAmountFloat, fiatTotalUSDValue, fiatUnitUSDValue] = this.#processOrder(iOrderObject);
@@ -555,6 +554,9 @@ export default class Orders extends EventEmitter {
     }
 
     updatePendingList(iOrderFilePath) {
+
+        if (this.#pendingOrdersObject[iOrderFilePath] === undefined)
+            return false;
 
         this.#pendingOrdersObject[iOrderFilePath].triggerTimestamp = Math.floor(Date.now() / 1000);
         this.#pendingOrdersObject[iOrderFilePath].triggerCount++;

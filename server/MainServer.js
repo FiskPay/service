@@ -146,7 +146,6 @@ wsServer.on("connection", (wsClient) => {
             console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " disconnected");
 
         });
-
     }
 });
 
