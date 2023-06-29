@@ -26,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && ($iPNData = @file_get_contents('php
 			if ($responseObject->error === false && $responseObject->data !== null) {
 
 				$orderObject = $responseObject->data->order;
-				$orderDir = "./FiskPayOrders/invalid/";
 
 
 				$network = $orderObject->network; // The network that the transaction took place
@@ -89,10 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && ($iPNData = @file_get_contents('php
 //------------------------------------------------------------ DO NOT EDIT THE CODE BELOW THIS COMMENT ------------------------------------------------------------//
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-					$orderDir = "./FiskPayOrders/valid/";
 				}
 
 				if ($logTransactions == true) {
+
+					$orderDir = "./FiskPayOrders/";
 
 					if (is_dir($orderDir) == false)
 						mkdir($orderDir, 0750, true);
