@@ -346,7 +346,7 @@ export default class Orders extends EventEmitter {
         const [cryptoAmountFloat, cryptoAmountInteger, cryptoTotalUSDValue, cryptoUnitUSDValue, fiatAmountFloat, fiatTotalUSDValue, fiatUnitUSDValue] = this.#processOrder(iOrderObject);
         const verification = this.#orderVerification(iOrderObject.cryptoSymbol, iOrderObject.senderAddress, iOrderObject.receiverAddress, cryptoAmountInteger, tnow);
 
-        const newOrderDirPath = this.#ordersDir + iOrderObject.network + "/" + toDateFolder(tnow) + "/new/";
+        const newOrderDirPath = this.#ordersDir + toDateFolder(tnow) + "/new/" + iOrderObject.network + "/";
         const newOrderFilePath = newOrderDirPath + verification + ".json";
 
         if (fs.existsSync(newOrderFilePath)) {
@@ -441,7 +441,7 @@ export default class Orders extends EventEmitter {
 
     setAsPaid(iNetwork, iTransactionHash, iVerification, iTimestamp) {
 
-        const newOrderDirPath = this.#ordersDir + iNetwork + "/" + toDateFolder(iTimestamp) + "/new/";
+        const newOrderDirPath = this.#ordersDir + toDateFolder(iTimestamp) + "/new/" + iNetwork + "/";
         const newOrderFilePath = newOrderDirPath + iVerification + ".json";
 
         const paidOrderDirPath = newOrderDirPath.replace("new", "paid");

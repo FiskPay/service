@@ -13,8 +13,8 @@ const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 const transactions = new DataLoop(30);
 const packets = new DataLoop(10);
 
-const orderstDir = "./server/private/ordersBucket/";
-const serverDir = "./server/private/serverBucket/";
+const orderstDir = "./server/private/orders/";
+const serverDir = "./server/private/orderClassData/";
 const orders = new Orders(orderstDir, serverDir, 1, 5);
 const triggerRetryAttempts = 5;
 const triggerRetrySeconds = 120;
@@ -27,7 +27,9 @@ const wsServer = new Server(httpServer, wsOptions);
 
 function trigger(iOrderPath, iforce) {
 
-    if (wsServer.sockets.adapter.rooms.get("ProxyServer").size > 0) {
+    const proxyRoomData = wsServer.sockets.adapter.rooms.get("ProxyServer");
+
+    if (proxyRoomData && proxyRoomData.size > 0) {
 
         const triggerObject = orders.getTriggerObject(iOrderPath);
 
@@ -144,7 +146,6 @@ wsServer.on("connection", (wsClient) => {
         }).on("disconnect", () => {
 
             console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " disconnected");
-
         });
     }
 });

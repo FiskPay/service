@@ -116,7 +116,7 @@ httpServer.post("/createOrder*", async (req, res) => {
         let responseObject = await new Promise((resolve) => {
 
             wsClient.once("claimOrderResponse", (responseObject) => {
-                
+
                 /*pendingClaim--;
 
                 if (responseObject.error == false) {
@@ -160,19 +160,26 @@ httpServer.post("/createOrder*", async (req, res) => {
     res.status(404).type("html").send("<h1>404! Page not found</h1>").end();
 });
 
-wsClient.on("triggerCustomer", (iUrl, iPostData) => {
+wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
 
     //console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl);
 
-    fetch(iUrl, {
+    try {
 
-        method: "post",
-        headers: {
-            'Accept': 'text/plain',
-            'Content-Type': 'text/plain'
-        },
-        body: iPostData
-    })
+        await fetch(iUrl, {
+
+            method: "post",
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'text/plain'
+            },
+            body: iPostData
+        });
+    }
+    catch (e) {
+
+        //console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl + " failed");
+    }
 
 }).on("connect", () => {
 
