@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
+import http from 'node:http';
+import https from 'node:https';
 
 import { io } from "socket.io-client";
 
@@ -10,6 +12,8 @@ import { dateTime } from "./functions/dateTools.js";
 const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
 const httpServer = new express();
+const httpAgent = new http.Agent({});
+const httpsAgent = new https.Agent({});
 const corsOptions = { origin: "*", credentials: true, optionSuccessStatus: 200 };
 
 httpServer.use(cors(corsOptions));
@@ -166,6 +170,8 @@ wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
 
     try {
 
+        const urlProtocol = new URL(iUrl).protocol;
+
         await fetch(iUrl, {
 
             method: "post",
@@ -173,12 +179,18 @@ wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
                 'Accept': 'text/plain',
                 'Content-Type': 'text/plain'
             },
-            body: iPostData
+            body: iPostData,
+            agent: () => {
+                if (urlProtocol == 'http:')
+                    return httpAgent;
+                else
+                    return httpsAgent;
+            }
         });
     }
     catch (e) {
 
-        //console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl + " failed");
+        console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl + " failed");
     }
 
 }).on("connect", () => {

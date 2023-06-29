@@ -156,12 +156,9 @@ httpServer.listen(myENV.wsServerPort, () => {
 
     setInterval(() => {
 
-        if (wsServer.sockets.adapter.rooms.get("ProxyServer")) {
-
             const pendingOrders = orders.getPendingList();
 
             for (let order in pendingOrders)
                 trigger(order, false);
-        }
     }, 30000);
 });
