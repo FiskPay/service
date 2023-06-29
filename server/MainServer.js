@@ -17,7 +17,7 @@ const orderstDir = "./server/private/orders/";
 const serverDir = "./server/private/orderClassData/";
 const orders = new Orders(orderstDir, serverDir, 1, 5);
 const triggerRetryAttempts = 5;
-const triggerRetrySeconds = 120;
+const triggerRetrySeconds = 180;
 
 const wsOptions = { cors: { origin: "*", credentials: true, optionSuccessStatus: 200 } };
 const wsWhitelist = [myENV.wsClientAddress1, myENV.wsClientAddress2, myENV.httpServerAddress];
@@ -154,11 +154,19 @@ httpServer.listen(myENV.wsServerPort, () => {
 
     console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.wsServerPort);
 
-    setInterval(() => {
+    let interval = Math.floor(triggerRetrySeconds * 1000 / 3);
 
-            const pendingOrders = orders.getPendingList();
+    if (interval < 30000)
+        interval = 30000;
 
-            for (let order in pendingOrders)
-                trigger(order, false);
-    }, 30000);
+    setInterval(async () => {
+
+        const pendingOrders = orders.getPendingList();
+
+        for (let order in pendingOrders) {
+
+            await new Promise(resolve => setTimeout(resolve, 250));
+            trigger(order, false);
+        }
+    }, interval);
 });

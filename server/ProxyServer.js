@@ -190,7 +190,7 @@ wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
     }
     catch (e) {
 
-        console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl + " failed");
+        //console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl + " failed");
     }
 
 }).on("connect", () => {
