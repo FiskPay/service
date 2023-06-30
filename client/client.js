@@ -320,7 +320,7 @@ async function Pay(_buttonID) {
 								"postItem4": postItem4
 							};
 
-							const url = "http://127.0.0.1/createOrder";
+							const url = "http://ukvps.fiskpay.com/createOrder";
 							const sendString = JSON.stringify(sendObject);
 
 							const http = new XMLHttpRequest();
