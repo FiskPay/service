@@ -105,7 +105,7 @@ wsServer.on("connection", (wsClient) => {
                 //console.log("[" + dateTime() + "] MainServer  >>  " + network + " live transaction received (" + verification + ")");
             }
 
-        }).on("newTransactionsPacket", (packetID, transactionsPacket) => { //Back to Main
+        }).on("newTransactionsPacket", async (packetID, transactionsPacket) => { //Back to Main
 
             if (!packets.exists(packetID)) {
 
@@ -126,8 +126,11 @@ wsServer.on("connection", (wsClient) => {
 
                         const orderPath = orders.setAsPaid(network, transactionHash, verification, timestamp);
 
-                        if (orderPath)
+                        if (orderPath) {
+
                             trigger(orderPath, true); //Main to Proxy
+                            await new Promise(resolve => setTimeout(resolve, 150));
+                        }
 
                         //console.log("[" + dateTime() + "] MainServer  >>  " + network + " historic transaction received (" + verification + ")");
                     }
@@ -165,8 +168,8 @@ httpServer.listen(myENV.wsServerPort, () => {
 
         for (let order in pendingOrders) {
 
-            await new Promise(resolve => setTimeout(resolve, 250));
             trigger(order, false);
+            await new Promise(resolve => setTimeout(resolve, 250));
         }
     }, interval);
 });

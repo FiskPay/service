@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
-import http from 'node:http';
-import https from 'node:https';
+import http from "node:http";
+import https from "node:https";
 
 import { io } from "socket.io-client";
 
@@ -70,6 +70,8 @@ httpServer.post("/createOrder*", async (req, res) => {
 
         let responseObject = await new Promise((resolve) => {
 
+            let timeout;
+
             wsClient.once("createOrderResponse", (responseObject) => {
 
                 /*pendingCreate--;
@@ -78,10 +80,11 @@ httpServer.post("/createOrder*", async (req, res) => {
                 if (pendingCreate <= 0)
                     console.log("[" + dateTime() + "] ProxyServer  >>  All creates served");*/
 
+                clearTimeout(timeout);
                 resolve(responseObject);
             });
 
-            setTimeout(() => {
+            timeout = setTimeout(() => {
 
                 let responseObject = new Object();
                 responseObject.error = true;
@@ -119,6 +122,8 @@ httpServer.post("/createOrder*", async (req, res) => {
 
         let responseObject = await new Promise((resolve) => {
 
+            let timeout;
+
             wsClient.once("claimOrderResponse", (responseObject) => {
 
                 /*pendingClaim--;
@@ -126,10 +131,10 @@ httpServer.post("/createOrder*", async (req, res) => {
                 if (responseObject.error == false) {
 
                     const protocol = req.protocol;
-                    const hostHeaderIndex = req.rawHeaders.indexOf('Host') + 1;
+                    const hostHeaderIndex = req.rawHeaders.indexOf("Host") + 1;
                     const host = hostHeaderIndex ? req.rawHeaders[hostHeaderIndex] : undefined;
 
-                    let claimer = protocol + '://' + host;
+                    let claimer = protocol + "://" + host;
 
                     if (!host)
                         claimer = req.headers.referer ? req.headers.referer.substring(0, req.headers.referer.length - 1) : undefined;
@@ -142,10 +147,11 @@ httpServer.post("/createOrder*", async (req, res) => {
                 if (pendingClaim <= 0)
                     console.log("[" + dateTime() + "] ProxyServer  >>  All claims served");*/
 
+                clearTimeout(timeout);
                 resolve(responseObject);
             });
 
-            setTimeout(() => {
+            timeout = setTimeout(() => {
 
                 let responseObject = new Object();
                 responseObject.error = true;
@@ -176,12 +182,12 @@ wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
 
             method: "post",
             headers: {
-                'Accept': 'text/plain',
-                'Content-Type': 'text/plain'
+                "Accept": "text/plain",
+                "Content-Type": "text/plain"
             },
             body: iPostData,
             agent: () => {
-                if (urlProtocol == 'http:')
+                if (urlProtocol == "http:")
                     return httpAgent;
                 else
                     return httpsAgent;
@@ -210,7 +216,6 @@ wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
     connectedToMainServer = false;
 
     console.log("[" + dateTime() + "] ProxyServer  >>  Connection lost");
-
 });
 
 httpServer.listen(myENV.httpServerPort, () => {
