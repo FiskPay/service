@@ -457,14 +457,13 @@ class Orders extends EventEmitter {
             return responseObject;
         }
 
-        await this.#updateCrypto(false);
-        await this.#updateFiat(false);
+        await Promise.all([this.#updateCrypto(false), this.#updateFiat(false)]);
 
         const tnow = Math.floor(Date.now() / 1000);
         const [cryptoAmountFloat, cryptoAmountInteger, cryptoTotalUSDValue, cryptoUnitUSDValue, fiatAmountFloat, fiatTotalUSDValue, fiatUnitUSDValue] = this.#processOrder(iOrderObject);
         const verification = this.#orderVerification(iOrderObject.cryptoSymbol, iOrderObject.senderAddress, iOrderObject.receiverAddress, cryptoAmountInteger, tnow);
 
-        const newOrderDirPath = this.#ordersDir + iOrderObject.network + "/" + toDateFolder(tnow) + "/new/";
+        const newOrderDirPath = this.#ordersDir + toDateFolder(tnow) + "/new/" + iOrderObject.network + "/";
         const newOrderFilePath = newOrderDirPath + verification + ".json";
 
         if (fs.existsSync(newOrderFilePath)) {
@@ -559,7 +558,7 @@ class Orders extends EventEmitter {
 
     setAsPaid(iNetwork, iTransactionHash, iVerification, iTimestamp) {
 
-        const newOrderDirPath = this.#ordersDir + iNetwork + "/" + toDateFolder(iTimestamp) + "/new/";
+        const newOrderDirPath = this.#ordersDir + toDateFolder(iTimestamp) + "/new/" + iNetwork + "/";
         const newOrderFilePath = newOrderDirPath + iVerification + ".json";
 
         const paidOrderDirPath = newOrderDirPath.replace("new", "paid");
@@ -673,6 +672,9 @@ class Orders extends EventEmitter {
 
     updatePendingList(iOrderFilePath) {
 
+        if (this.#pendingOrdersObject[iOrderFilePath] === undefined)
+            return false;
+
         this.#pendingOrdersObject[iOrderFilePath].triggerTimestamp = Math.floor(Date.now() / 1000);
         this.#pendingOrdersObject[iOrderFilePath].triggerCount++;
 
@@ -704,11 +706,11 @@ const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 const transactions = new DataLoop(30);
 const packets = new DataLoop(10);
 
-const orderstDir = "./server/private/ordersBucket/";
-const serverDir = "./server/private/serverBucket/";
+const orderstDir = "./server/private/orders/";
+const serverDir = "./server/private/orderClassData/";
 const orders = new Orders(orderstDir, serverDir, 1, 5);
 const triggerRetryAttempts = 5;
-const triggerRetrySeconds = 120;
+const triggerRetrySeconds = 180;
 
 const wsOptions = { cors: { origin: "*", credentials: true, optionSuccessStatus: 200 } };
 const wsWhitelist = [myENV.wsClientAddress1, myENV.wsClientAddress2, myENV.httpServerAddress];
@@ -718,7 +720,9 @@ const wsServer = new socket_io.Server(httpServer, wsOptions);
 
 function trigger(iOrderPath, iforce) {
 
-    if (wsServer.sockets.adapter.rooms.get("ProxyServer").size > 0) {
+    const proxyRoomData = wsServer.sockets.adapter.rooms.get("ProxyServer");
+
+    if (proxyRoomData && proxyRoomData.size > 0) {
 
         const triggerObject = orders.getTriggerObject(iOrderPath);
 
@@ -794,7 +798,7 @@ wsServer.on("connection", (wsClient) => {
                 //console.log("[" + dateTime() + "] MainServer  >>  " + network + " live transaction received (" + verification + ")");
             }
 
-        }).on("newTransactionsPacket", (packetID, transactionsPacket) => { //Back to Main
+        }).on("newTransactionsPacket", async (packetID, transactionsPacket) => { //Back to Main
 
             if (!packets.exists(packetID)) {
 
@@ -815,8 +819,11 @@ wsServer.on("connection", (wsClient) => {
 
                         const orderPath = orders.setAsPaid(network, transactionHash, verification, timestamp);
 
-                        if (orderPath)
+                        if (orderPath) {
+
                             trigger(orderPath, true); //Main to Proxy
+                            await new Promise(resolve => setTimeout(resolve, 150));
+                        }
 
                         //console.log("[" + dateTime() + "] MainServer  >>  " + network + " historic transaction received (" + verification + ")");
                     }
@@ -834,9 +841,7 @@ wsServer.on("connection", (wsClient) => {
         }).on("disconnect", () => {
 
             console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " disconnected");
-
         });
-
     }
 });
 
@@ -844,14 +849,19 @@ httpServer.listen(myENV.wsServerPort, () => {
 
     console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.wsServerPort);
 
-    setInterval(() => {
+    let interval = Math.floor(triggerRetrySeconds * 1000 / 3);
 
-        if (wsServer.sockets.adapter.rooms.get("ProxyServer")) {
+    if (interval < 30000)
+        interval = 30000;
 
-            const pendingOrders = orders.getPendingList();
+    setInterval(async () => {
 
-            for (let order in pendingOrders)
-                trigger(order, false);
+        const pendingOrders = orders.getPendingList();
+
+        for (let order in pendingOrders) {
+
+            trigger(order, false);
+            await new Promise(resolve => setTimeout(resolve, 250));
         }
-    }, 30000);
+    }, interval);
 });

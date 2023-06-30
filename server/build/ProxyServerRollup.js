@@ -4,6 +4,8 @@ var dotenv = require('dotenv');
 var express = require('express');
 var cors = require('cors');
 var fetch = require('node-fetch');
+var http = require('node:http');
+var https = require('node:https');
 var socket_ioClient = require('socket.io-client');
 
 function dateTime() {
@@ -23,6 +25,8 @@ function dateTime() {
 const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
 const httpServer = new express();
+const httpAgent = new http.Agent({});
+const httpsAgent = new https.Agent({});
 const corsOptions = { origin: "*", credentials: true, optionSuccessStatus: 200 };
 
 httpServer.use(cors(corsOptions));
@@ -79,6 +83,8 @@ httpServer.post("/createOrder*", async (req, res) => {
 
         let responseObject = await new Promise((resolve) => {
 
+            let timeout;
+
             wsClient.once("createOrderResponse", (responseObject) => {
 
                 /*pendingCreate--;
@@ -87,8 +93,20 @@ httpServer.post("/createOrder*", async (req, res) => {
                 if (pendingCreate <= 0)
                     console.log("[" + dateTime() + "] ProxyServer  >>  All creates served");*/
 
+                clearTimeout(timeout);
                 resolve(responseObject);
             });
+
+            timeout = setTimeout(() => {
+
+                let responseObject = new Object();
+                responseObject.error = true;
+                responseObject.message = "Request timed out";
+                responseObject.data = {};
+
+                resolve(responseObject);
+
+            }, 15000);
         });
 
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();
@@ -117,6 +135,8 @@ httpServer.post("/createOrder*", async (req, res) => {
 
         let responseObject = await new Promise((resolve) => {
 
+            let timeout;
+
             wsClient.once("claimOrderResponse", (responseObject) => {
 
                 /*pendingClaim--;
@@ -124,10 +144,10 @@ httpServer.post("/createOrder*", async (req, res) => {
                 if (responseObject.error == false) {
 
                     const protocol = req.protocol;
-                    const hostHeaderIndex = req.rawHeaders.indexOf('Host') + 1;
+                    const hostHeaderIndex = req.rawHeaders.indexOf("Host") + 1;
                     const host = hostHeaderIndex ? req.rawHeaders[hostHeaderIndex] : undefined;
 
-                    let claimer = protocol + '://' + host;
+                    let claimer = protocol + "://" + host;
 
                     if (!host)
                         claimer = req.headers.referer ? req.headers.referer.substring(0, req.headers.referer.length - 1) : undefined;
@@ -140,8 +160,20 @@ httpServer.post("/createOrder*", async (req, res) => {
                 if (pendingClaim <= 0)
                     console.log("[" + dateTime() + "] ProxyServer  >>  All claims served");*/
 
+                clearTimeout(timeout);
                 resolve(responseObject);
             });
+
+            timeout = setTimeout(() => {
+
+                let responseObject = new Object();
+                responseObject.error = true;
+                responseObject.message = "Request timed out";
+                responseObject.data = {};
+
+                resolve(responseObject);
+
+            }, 15000);
         });
 
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();
@@ -151,19 +183,34 @@ httpServer.post("/createOrder*", async (req, res) => {
     res.status(404).type("html").send("<h1>404! Page not found</h1>").end();
 });
 
-wsClient.on("triggerCustomer", (iUrl, iPostData) => {
+wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
 
     //console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl);
 
-    fetch(iUrl, {
+    try {
 
-        method: "post",
-        headers: {
-            'Accept': 'text/plain',
-            'Content-Type': 'text/plain'
-        },
-        body: iPostData
-    });
+        const urlProtocol = new URL(iUrl).protocol;
+
+        await fetch(iUrl, {
+
+            method: "post",
+            headers: {
+                "Accept": "text/plain",
+                "Content-Type": "text/plain"
+            },
+            body: iPostData,
+            agent: () => {
+                if (urlProtocol == "http:")
+                    return httpAgent;
+                else
+                    return httpsAgent;
+            }
+        });
+    }
+    catch (e) {
+
+        //console.log("[" + dateTime() + "] ProxyServer  >>  Triggering " + iUrl + " failed");
+    }
 
 }).on("connect", () => {
 
@@ -182,7 +229,6 @@ wsClient.on("triggerCustomer", (iUrl, iPostData) => {
     connectedToMainServer = false;
 
     console.log("[" + dateTime() + "] ProxyServer  >>  Connection lost");
-
 });
 
 httpServer.listen(myENV.httpServerPort, () => {
