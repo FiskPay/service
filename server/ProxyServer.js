@@ -17,7 +17,7 @@ const serverHandler = new express();
 serverHandler.use((req, res, next) => {
 
     if (!req.secure)
-        return res.redirect(301, "https://" + req.headers.host + req.url).end();
+        return res.redirect(301, "https://" + req.headers.host + req.url);
 
     try {
 
