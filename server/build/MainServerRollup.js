@@ -713,7 +713,7 @@ const triggerRetryAttempts = 5;
 const triggerRetrySeconds = 180;
 
 const wsOptions = { cors: { origin: "*", credentials: true, optionSuccessStatus: 200 } };
-const wsWhitelist = [myENV.wsClientAddress1, myENV.wsClientAddress2, myENV.httpServerAddress];
+const wsWhitelist = [myENV.backServer1Address, myENV.backServer2Address, myENV.proxyServerAddress];
 
 const httpServer = new http.createServer();
 const wsServer = new socket_io.Server(httpServer, wsOptions);
@@ -754,7 +754,7 @@ wsServer.on("connection", (wsClient) => {
 
     if (!wsWhitelist.includes(wsClientAddress)) {
 
-        wsClient.disconnect();
+        wsClient.disconnect(true);
         console.log("[" + dateTime() + "] MainServer  >>  Client " + wsClientAddress + " connection rejected");
     }
     else {
@@ -845,9 +845,9 @@ wsServer.on("connection", (wsClient) => {
     }
 });
 
-httpServer.listen(myENV.wsServerPort, () => {
+httpServer.listen(myENV.wsPort, () => {
 
-    console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.wsServerPort);
+    console.log("[" + dateTime() + "] MainServer  >>  Websocket server online on port " + myENV.wsPort);
 
     let interval = Math.floor(triggerRetrySeconds * 1000 / 3);
 

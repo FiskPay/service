@@ -220,7 +220,7 @@ let testnetConnectedProviders = 0;
 
 const transactions = new DataLoop(30);
 const listener = new Listener();
-const wsClient = socket_ioClient.io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
+const wsClient = socket_ioClient.io("ws://" + myENV.mainServerAddress + ":" + myENV.wsPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
 
 let connectedToMainServer = false;
 let transactionsPacket = new Array();

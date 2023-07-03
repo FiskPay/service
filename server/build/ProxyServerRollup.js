@@ -33,37 +33,31 @@ serverHandler.use((req, res, next) => {
 
     res.set("Connection", "close");
 
-    if (!req.secure)
-        res.redirect(301, "https://" + req.headers.host + req.url);
-    else {
+    try {
 
-        try {
+        decodeURIComponent(req.url);
+        next();
+    }
+    catch (e) {
 
-            decodeURIComponent(req.path);
-            next();
-        }
-        catch (e) {
+        //console.log("[" + dateTime() + "] ProxyServer  >>  Request URI not parsable");
 
-            //console.log("[" + dateTime() + "] ProxyServer  >>  Request URI not parsable");
+        let responseObject = new Object();
+        responseObject.error = true;
+        responseObject.message = "URI not parsable";
+        responseObject.data = {};
 
-            let responseObject = new Object();
-            responseObject.error = true;
-            responseObject.message = "URI not parsable";
-            responseObject.data = {};
-
-            res.status(200).type("json").send(JSON.stringify(responseObject)).end();
-            res.connection.end();
-        }
+        res.status(200).type("json").send(JSON.stringify(responseObject)).end();
+        res.connection.end();
     }
 });
 
-const httpServer = http.createServer(serverHandler);
 const httpsServer = https.createServer({ key: fs.readFileSync("./server/private/key.pem"), cert: fs.readFileSync("./server/private/cert.pem"), ca: fs.readFileSync("./server/private/ca.pem") }, serverHandler);
 
 const httpAgent = new http.Agent({});
 const httpsAgent = new https.Agent({});
 
-const wsClient = socket_ioClient.io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
+const wsClient = socket_ioClient.io("ws://" + myENV.mainServerAddress + ":" + myENV.wsPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
 
 let connectedToMainServer = false;
 /*let pendingCreate = 0;
@@ -194,7 +188,7 @@ serverHandler.post("/createOrder*", async (req, res) => {
     }
 }).all("*", (req, res) => {
 
-    res.status(404).type("html").send("<h1>404! Page not found</h1>").end();
+    res.status(403).type("html").send("<h1>Error 403: Access denied</h1>").end();
     res.connection.end();
 });
 
@@ -246,14 +240,9 @@ wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
     console.log("[" + dateTime() + "] ProxyServer  >>  Connection lost");
 });
 
-httpServer.listen(myENV.httpServerPort, () => {
+httpsServer.listen(myENV.httpsPort, () => {
 
-    console.log("[" + dateTime() + "] ProxyServer  >>  Http server online on port " + myENV.httpServerPort);
-});
-
-httpsServer.listen(myENV.httpsServerPort, () => {
-
-    console.log("[" + dateTime() + "] ProxyServer  >>  Https server online on port " + myENV.httpsServerPort);
+    console.log("[" + dateTime() + "] ProxyServer  >>  Https server online on port " + myENV.httpsPort);
 });
 
 wsClient.connect();
