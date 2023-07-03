@@ -21,7 +21,7 @@ serverHandler.use((req, res, next) => {
     res.set("Connection", "close");
 
     if (!req.secure)
-        res.redirect(301, "https://" + req.headers.host + req.url);
+        res.redirect(301, "https://" + req.hostname + req.url);
     else {
 
         try {
