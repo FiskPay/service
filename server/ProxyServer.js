@@ -26,7 +26,7 @@ serverHandler.use((req, res, next) => {
 
         try {
 
-            decodeURIComponent(req.path);
+            decodeURIComponent(req.url);
             next();
         }
         catch (e) {
