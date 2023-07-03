@@ -14,10 +14,10 @@ const mainnetProviderURLs = [myENV.mainnetProvider1, myENV.mainnetProvider2];
 const testnetProviderURLs = [myENV.testnetProvider1, myENV.testnetProvider2];
 
 const mainnetProviderCount = mainnetProviderURLs.length;
-let mainnetConnectedListeners = 0;
+let mainnetConnectedProviders = 0;
 
 const testnetProviderCount = testnetProviderURLs.length;
-let testnetConnectedListeners = 0;
+let testnetConnectedProviders = 0;
 
 const transactions = new DataLoop(30);
 const listener = new Listener();
@@ -26,14 +26,14 @@ const wsClient = io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, 
 let connectedToMainServer = false;
 let transactionsPacket = new Array();
 
-listener.on("listenerChange", (network, connectedListeners) => {
+listener.on("providerChange", (network, connectedProviders) => {
 
     if (network == "0x89")
-        mainnetConnectedListeners = connectedListeners;
+        mainnetConnectedProviders = connectedProviders;
     else
-        testnetConnectedListeners = connectedListeners;
+        testnetConnectedProviders = connectedProviders;
 
-    console.log("[" + dateTime() + "] BackServer  >>  0x89: " + mainnetConnectedListeners + "/" + mainnetProviderCount + "  |  0x13881: " + testnetConnectedListeners + "/" + testnetProviderCount);
+    console.log("[" + dateTime() + "] BackServer  >>  0x89: " + mainnetConnectedProviders + "/" + mainnetProviderCount + "  |  0x13881: " + testnetConnectedProviders + "/" + testnetProviderCount);
 
 }).on("newTransaction", (network, transactionHash, verification, timestamp) => {
 

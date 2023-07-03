@@ -2,3 +2,5 @@
 node_modules/**
 server/private/ordersClassData/**
 server/private/orders/**
+server/private/key.pem
+server/private/cert.pem

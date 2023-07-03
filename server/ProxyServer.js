@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import fs from "fs";
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
@@ -11,20 +12,16 @@ import { dateTime } from "./functions/dateTools.js";
 
 const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
-const httpServer = new express();
-const httpAgent = new http.Agent({});
-const httpsAgent = new https.Agent({});
-const corsOptions = { origin: "*", credentials: true, optionSuccessStatus: 200 };
+const serverHandler = new express();
 
-httpServer.use(cors(corsOptions));
-httpServer.use(express.json());
-httpServer.use(express.urlencoded({ extended: true }));
-httpServer.use((req, res, next) => {
+serverHandler.use((req, res, next) => {
+
+    if (!req.secure)
+        return res.redirect(301, "https://" + req.headers.host + req.url).end();
 
     try {
 
         decodeURIComponent(req.path)
-        next();
     }
     catch (e) {
 
@@ -35,9 +32,23 @@ httpServer.use((req, res, next) => {
         responseObject.message = "URI not parsable";
         responseObject.data = {};
 
-        res.status(200).type("json").send(JSON.stringify(responseObject)).end();
+        return res.status(200).type("json").send(JSON.stringify(responseObject)).end();
     }
+    next();
 });
+
+serverHandler.use(cors({ origin: "*", credentials: true, optionSuccessStatus: 200 }));
+serverHandler.use(express.json());
+serverHandler.use(express.urlencoded({ extended: true }));
+
+const httpServer = http.createServer(serverHandler);
+const httpsServer = https.createServer({
+    key: fs.readFileSync("./server/private/key.pem"),
+    cert: fs.readFileSync("./server/private/cert.pem"),
+}, serverHandler);
+
+const httpAgent = new http.Agent({});
+const httpsAgent = new https.Agent({});
 
 const wsClient = io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
 
@@ -47,7 +58,7 @@ let pendingClaim = 0;
 let unservedCreate = 0;
 let unservedClaim = 0;*/
 
-httpServer.post("/createOrder*", async (req, res) => {
+serverHandler.post("/createOrder*", async (req, res) => {
 
     if (!connectedToMainServer) {
 
@@ -221,6 +232,11 @@ wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
 httpServer.listen(myENV.httpServerPort, () => {
 
     console.log("[" + dateTime() + "] ProxyServer  >>  Http server online on port " + myENV.httpServerPort);
-
-    wsClient.connect();
 });
+
+httpsServer.listen(myENV.httpsServerPort, () => {
+
+    console.log("[" + dateTime() + "] ProxyServer  >>  Https server online on port " + myENV.httpsServerPort);
+});
+
+wsClient.connect();

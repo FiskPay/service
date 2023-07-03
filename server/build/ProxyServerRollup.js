@@ -1,6 +1,7 @@
 'use strict';
 
 var dotenv = require('dotenv');
+var fs = require('fs');
 var express = require('express');
 var cors = require('cors');
 var fetch = require('node-fetch');
@@ -24,15 +25,11 @@ function dateTime() {
 
 const myENV = dotenv.config({ path: "./server/private/.env" }).parsed;
 
-const httpServer = new express();
-const httpAgent = new http.Agent({});
-const httpsAgent = new https.Agent({});
-const corsOptions = { origin: "*", credentials: true, optionSuccessStatus: 200 };
-
-httpServer.use(cors(corsOptions));
-httpServer.use(express.json());
-httpServer.use(express.urlencoded({ extended: true }));
-httpServer.use((req, res, next) => {
+const serverHandler = new express();
+serverHandler.use(cors({ origin: "*", credentials: true, optionSuccessStatus: 200 }));
+serverHandler.use(express.json());
+serverHandler.use(express.urlencoded({ extended: true }));
+serverHandler.use((req, res, next) => {
 
     try {
 
@@ -52,6 +49,15 @@ httpServer.use((req, res, next) => {
     }
 });
 
+const httpServer = http.createServer(serverHandler);
+const httpsServer = https.createServer({
+    key: fs.readFileSync("./server/private/key.pem"),
+    cert: fs.readFileSync("./server/private/cert.pem"),
+}, serverHandler);
+
+const httpAgent = new http.Agent({});
+const httpsAgent = new https.Agent({});
+
 const wsClient = socket_ioClient.io("ws://" + myENV.wsServerAddress + ":" + myENV.wsServerPort, { "autoConnect": false, "reconnection": true, "reconnectionDelay": 1000, "reconnectionAttempts": Infinity });
 
 let connectedToMainServer = false;
@@ -60,7 +66,7 @@ let pendingClaim = 0;
 let unservedCreate = 0;
 let unservedClaim = 0;*/
 
-httpServer.post("/createOrder*", async (req, res) => {
+serverHandler.post("/createOrder*", async (req, res) => {
 
     if (!connectedToMainServer) {
 
@@ -234,6 +240,11 @@ wsClient.on("triggerCustomer", async (iUrl, iPostData) => {
 httpServer.listen(myENV.httpServerPort, () => {
 
     console.log("[" + dateTime() + "] ProxyServer  >>  Http server online on port " + myENV.httpServerPort);
-
-    wsClient.connect();
 });
+
+httpsServer.listen(myENV.httpsServerPort, () => {
+
+    console.log("[" + dateTime() + "] ProxyServer  >>  Https server online on port " + myENV.httpsServerPort);
+});
+
+wsClient.connect();

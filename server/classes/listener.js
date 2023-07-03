@@ -24,7 +24,7 @@ export default class Listener extends EventEmitter {
         const reconnectAftenMilliseconds = 10000;
         let wasConnected = Array(uRLCount).fill(false);
 
-        let connectedListeners = 0;
+        let connectedProviders = 0;
 
         let processorAddress = "0x0000000000000000000000000000000000000000";
 
@@ -73,8 +73,8 @@ export default class Listener extends EventEmitter {
 
                 wasConnected[providerIndex] = false;
 
-                connectedListeners--;
-                this.emit('connectionChange', network, connectedListeners);
+                connectedProviders--;
+                this.emit('providerChange', network, connectedProviders);
 
                 let pollingReconnection = setInterval(() => {
 
@@ -137,8 +137,8 @@ export default class Listener extends EventEmitter {
                     console.log(error);
             });
 
-            connectedListeners++;
-            this.emit('listenerChange', network, connectedListeners);
+            connectedProviders++;
+            this.emit('providerChange', network, connectedProviders);
 
         }
 
