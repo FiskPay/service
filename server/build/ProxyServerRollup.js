@@ -31,29 +31,34 @@ serverHandler.use(express.json());
 serverHandler.use(express.urlencoded({ extended: true }));
 serverHandler.use((req, res, next) => {
 
-    try {
+    res.set("Connection", "close");
 
-        decodeURIComponent(req.path);
-        next();
-    }
-    catch (e) {
+    if (!req.secure)
+        res.redirect(301, "https://" + req.headers.host + req.url);
+    else {
 
-        //console.log("[" + dateTime() + "] ProxyServer  >>  Request URI not parsable");
+        try {
 
-        let responseObject = new Object();
-        responseObject.error = true;
-        responseObject.message = "URI not parsable";
-        responseObject.data = {};
+            decodeURIComponent(req.path);
+            next();
+        }
+        catch (e) {
 
-        res.status(200).type("json").send(JSON.stringify(responseObject)).end();
+            //console.log("[" + dateTime() + "] ProxyServer  >>  Request URI not parsable");
+
+            let responseObject = new Object();
+            responseObject.error = true;
+            responseObject.message = "URI not parsable";
+            responseObject.data = {};
+
+            res.status(200).type("json").send(JSON.stringify(responseObject)).end();
+            res.connection.end();
+        }
     }
 });
 
 const httpServer = http.createServer(serverHandler);
-const httpsServer = https.createServer({
-    key: fs.readFileSync("./server/private/key.pem"),
-    cert: fs.readFileSync("./server/private/cert.pem"),
-}, serverHandler);
+const httpsServer = https.createServer({ key: fs.readFileSync("./server/private/key.pem"), cert: fs.readFileSync("./server/private/cert.pem"), ca: fs.readFileSync("./server/private/ca.pem") }, serverHandler);
 
 const httpAgent = new http.Agent({});
 const httpsAgent = new https.Agent({});
@@ -79,6 +84,7 @@ serverHandler.post("/createOrder*", async (req, res) => {
         responseObject.data = {};
 
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();
+        res.connection.end();
     }
     else {
 
@@ -95,7 +101,7 @@ serverHandler.post("/createOrder*", async (req, res) => {
 
                 /*pendingCreate--;
                 console.log("[" + dateTime() + "] ProxyServer  >>  Created " + responseObject.data.verification + " (" + responseObject.data.network + ")");
-
+    
                 if (pendingCreate <= 0)
                     console.log("[" + dateTime() + "] ProxyServer  >>  All creates served");*/
 
@@ -116,8 +122,8 @@ serverHandler.post("/createOrder*", async (req, res) => {
         });
 
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();
+        res.connection.end();
     }
-
 }).get("/claimOrder/:order", async (req, res) => {
 
     if (!connectedToMainServer) {
@@ -131,6 +137,7 @@ serverHandler.post("/createOrder*", async (req, res) => {
         responseObject.data = {};
 
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();
+        res.connection.end();
     }
     else {
 
@@ -146,23 +153,23 @@ serverHandler.post("/createOrder*", async (req, res) => {
             wsClient.once("claimOrderResponse", (responseObject) => {
 
                 /*pendingClaim--;
-
+    
                 if (responseObject.error == false) {
-
+    
                     const protocol = req.protocol;
                     const hostHeaderIndex = req.rawHeaders.indexOf("Host") + 1;
                     const host = hostHeaderIndex ? req.rawHeaders[hostHeaderIndex] : undefined;
-
+    
                     let claimer = protocol + "://" + host;
-
+    
                     if (!host)
                         claimer = req.headers.referer ? req.headers.referer.substring(0, req.headers.referer.length - 1) : undefined;
-
+    
                     console.log("[" + dateTime() + "] ProxyServer  >>  Claimed " + responseObject.data.order.verification + " (" + claimer + ")");
                 }
                 else
                     console.log("[" + dateTime() + "] ProxyServer  >>  Claim errored with message: " + responseObject.message);
-
+    
                 if (pendingClaim <= 0)
                     console.log("[" + dateTime() + "] ProxyServer  >>  All claims served");*/
 
@@ -183,10 +190,12 @@ serverHandler.post("/createOrder*", async (req, res) => {
         });
 
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();
+        res.connection.end();
     }
 }).all("*", (req, res) => {
 
     res.status(404).type("html").send("<h1>404! Page not found</h1>").end();
+    res.connection.end();
 });
 
 wsClient.on("triggerCustomer", async (iUrl, iPostData) => {

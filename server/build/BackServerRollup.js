@@ -29,7 +29,7 @@ class Listener extends EventEmitter {
         const reconnectAftenMilliseconds = 10000;
         let wasConnected = Array(uRLCount).fill(false);
 
-        let connectedListeners = 0;
+        let connectedProviders = 0;
 
         let processorAddress = "0x0000000000000000000000000000000000000000";
 
@@ -78,8 +78,8 @@ class Listener extends EventEmitter {
 
                 wasConnected[providerIndex] = false;
 
-                connectedListeners--;
-                this.emit('connectionChange', network, connectedListeners);
+                connectedProviders--;
+                this.emit('providerChange', network, connectedProviders);
 
                 let pollingReconnection = setInterval(() => {
 
@@ -142,8 +142,8 @@ class Listener extends EventEmitter {
                     console.log(error);
             });
 
-            connectedListeners++;
-            this.emit('listenerChange', network, connectedListeners);
+            connectedProviders++;
+            this.emit('providerChange', network, connectedProviders);
 
         };
 
@@ -213,10 +213,10 @@ const mainnetProviderURLs = [myENV.mainnetProvider1, myENV.mainnetProvider2];
 const testnetProviderURLs = [myENV.testnetProvider1, myENV.testnetProvider2];
 
 const mainnetProviderCount = mainnetProviderURLs.length;
-let mainnetConnectedListeners = 0;
+let mainnetConnectedProviders = 0;
 
 const testnetProviderCount = testnetProviderURLs.length;
-let testnetConnectedListeners = 0;
+let testnetConnectedProviders = 0;
 
 const transactions = new DataLoop(30);
 const listener = new Listener();
@@ -225,14 +225,14 @@ const wsClient = socket_ioClient.io("ws://" + myENV.wsServerAddress + ":" + myEN
 let connectedToMainServer = false;
 let transactionsPacket = new Array();
 
-listener.on("listenerChange", (network, connectedListeners) => {
+listener.on("providerChange", (network, connectedProviders) => {
 
     if (network == "0x89")
-        mainnetConnectedListeners = connectedListeners;
+        mainnetConnectedProviders = connectedProviders;
     else
-        testnetConnectedListeners = connectedListeners;
+        testnetConnectedProviders = connectedProviders;
 
-    console.log("[" + dateTime() + "] BackServer  >>  0x89: " + mainnetConnectedListeners + "/" + mainnetProviderCount + "  |  0x13881: " + testnetConnectedListeners + "/" + testnetProviderCount);
+    console.log("[" + dateTime() + "] BackServer  >>  0x89: " + mainnetConnectedProviders + "/" + mainnetProviderCount + "  |  0x13881: " + testnetConnectedProviders + "/" + testnetProviderCount);
 
 }).on("newTransaction", (network, transactionHash, verification, timestamp) => {
 
