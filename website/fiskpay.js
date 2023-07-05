@@ -1,8 +1,8 @@
 let script = document.createElement("script");
-script.src = "https://cdnjs.cloudflare.com/ajax/libs/web3/1.10.0/web3.min.js";
+script.src = "https://cdnjs.cloudflare.com/ajax/libs/web3/4.0.2/web3.min.js";
 script.type = "text/javascript";
 script.setAttribute("crossorigin", 'anonymous');
-script.integrity = "sha512-EXk1TBrT1TC+ajcr8c+McVhGFv4xAI+8m+V7T4PwT3MdYAv47jkirleTTZh8IFtRv90ZtKPOk/4JJTGUaQ9d6Q==";
+script.integrity = "sha512-4D1Ssn7wnKX8wN5ngp9Gq+r5paUi7N+lYQO8/Mhr4djP6BDjErM9IxpaayiU0VuQKrU7wCc/+Y8ZZ9IM2lyS1Q==";
 script.defer = true;
 document.head.appendChild(script);
 
@@ -97,8 +97,8 @@ onload = () => {
 	};
 
 	buttonIDListCount = buttonIDList.length;
-	//receiverAddress = url.pathname.split('/')[2]; //[1]
-	receiverAddress = urlParameters.get("addr");
+	receiverAddress = url.pathname.split('/')[1];
+	//receiverAddress = urlParameters.get("addr");
 
 	if (receiverAddress == null)
 		alert("Receiver address is not set. Insert your wallet address in the url, to continue.");
@@ -133,7 +133,7 @@ async function Pay(_buttonID) {
 
 			if (typeof (window.ethereum) !== "undefined" && window.ethereum != null)
 				provider = window.ethereum;
-			else if (typeof (window.web3.currentProvider) !== "undefined" && window.ethereum.currentProvider != null)
+			else if (typeof (window.web3) !== "undefined" && typeof (window.web3.currentProvider) !== "undefined" && window.web3.currentProvider != null)
 				provider = window.web3.currentProvider;
 
 			const paymentButton = document.getElementById(_buttonID);
