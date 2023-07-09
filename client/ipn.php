@@ -19,7 +19,7 @@ $logTransactions = true;
 
 if ($_SERVER['REQUEST_METHOD'] === "POST" && ($iPNData = @file_get_contents('php://input'))) {
 
-	if ($responseString = @file_get_contents("https://app.fiskpay.com/claimOrder/" . $iPNData)) {
+	if (preg_match("/^[a-zA-Z0-9\/\r\n+]*={0,2}$/", $iPNData) && $responseString = @file_get_contents("https://app.fiskpay.com/claimOrder/" . $iPNData)) {
 
 		if (($responseObject = json_decode($responseString)) !== null && property_exists($responseObject, 'error') && property_exists($responseObject, 'message') && property_exists($responseObject, 'data')) {
 
