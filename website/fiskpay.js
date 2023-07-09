@@ -402,9 +402,9 @@ async function Pay(_buttonID) {
 													let nonce = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
 													let pollingTransaction = setInterval(async () => {
 
-														let newTxObject = await web3Instance.eth.getTransaction(_txHash);
+														let transaction = await web3Instance.eth.getTransaction(_txHash);
 
-														if (newTxObject != null) {
+														if (transaction != null) {
 
 															let receipt = await web3Instance.eth.getTransactionReceipt(_txHash);
 
