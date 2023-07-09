@@ -198,9 +198,9 @@ async function Pay(_buttonID) {
 					const cryptoABI = [{ "constant": false, "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "name": "balance", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }, { "name": "_spender", "type": "address" }], "name": "allowance", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }];
 
 					const web3Instance = new Web3(provider);
-					web3Instance.eth.transactionBlockTimeout = 8000;
-					web3Instance.eth.transactionPollingTimeout = 300000;
-					web3Instance.eth.transactionPollingInterval = 2000;
+					web3Instance.eth.transactionBlockTimeout = 12000;
+					web3Instance.eth.transactionPollingTimeout = 400000;
+					web3Instance.eth.transactionPollingInterval = 1000;
 
 					let parentAddress;
 
