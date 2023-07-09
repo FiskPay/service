@@ -401,18 +401,26 @@ async function Pay(_buttonID) {
 													let nonce = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
 													let pollingTransaction = setInterval(async () => {
 
-														if (await web3Instance.eth.getTransaction(_txHash) != null) {
+														let newTxObject = await web3Instance.eth.getTransaction(_txHash);
 
-															web3Instance.eth.getTransactionReceipt(_txHash, (e, data) => {
+														if (newTxObject != undefined) {
 
-																if (data != null && data.status == true) {
+															try {
+
+																let receipt = await web3Instance.eth.getTransactionReceipt(_txHash);
+
+																if (receipt.status == true) {
 
 																	clearInterval(pollingTransaction);
 
 																	sendMessage("Payment was successful");
 																	setTimeout(() => { canProcess = true; }, 1000);
 																}
-															});
+															}
+															catch (e) {
+
+																//console.log("Receipt not found");
+															}
 														}
 														else {
 
@@ -422,7 +430,9 @@ async function Pay(_buttonID) {
 
 															let pollingNonce = setInterval(async () => {
 
-																if (nonce != await web3Instance.eth.getTransactionCount(senderCurrentAddress)) {
+																let latestCount = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
+
+																if (nonce != latestCount) {
 
 																	clearInterval(pollingNonce);
 

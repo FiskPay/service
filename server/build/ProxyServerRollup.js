@@ -1,10 +1,10 @@
 'use strict';
 
 var dotenv = require('dotenv');
-var fs = require('fs');
 var express = require('express');
 var cors = require('cors');
 var fetch = require('node-fetch');
+var fs = require('node:fs');
 var http = require('node:http');
 var https = require('node:https');
 var socket_ioClient = require('socket.io-client');

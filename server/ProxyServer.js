@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
-import fs from "fs";
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
+import fs from "node:fs";
 import http from "node:http";
 import https from "node:https";
 
