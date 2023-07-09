@@ -1,16 +1,16 @@
 let script = document.createElement("script");
-script.src = "https://cdnjs.cloudflare.com/ajax/libs/web3/4.0.2/web3.min.js";
+script.src = "https://cdnjs.cloudflare.com/ajax/libs/web3/1.10.0/web3.min.js";
 script.type = "text/javascript";
 script.setAttribute("crossorigin", 'anonymous');
-script.integrity = "sha512-4D1Ssn7wnKX8wN5ngp9Gq+r5paUi7N+lYQO8/Mhr4djP6BDjErM9IxpaayiU0VuQKrU7wCc/+Y8ZZ9IM2lyS1Q==";
+script.integrity = "sha512-EXk1TBrT1TC+ajcr8c+McVhGFv4xAI+8m+V7T4PwT3MdYAv47jkirleTTZh8IFtRv90ZtKPOk/4JJTGUaQ9d6Q==";
 script.defer = true;
 document.head.appendChild(script);
 
 script = document.createElement("script");
-script.src = "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js";
+script.src = "https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js";
 script.type = "text/javascript";
 script.setAttribute("crossorigin", 'anonymous');
-script.integrity = "sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==";
+script.integrity = "sha512-szJ5FSo9hEmXXe7b5AUVtn/WnL8a5VofnFeYC2i2z03uS2LhAch7ewNLbl5flsEmTTimMN0enBZg/3sQ+YOSzQ==";
 script.defer = true;
 document.head.appendChild(script);
 
@@ -32,7 +32,7 @@ onload = () => {
 
 		const paymentButton = paymentButtons[i];
 
-		paymentButton.id = "fp-" + CryptoJS.SHA256(seed.toString() + "!!@xXx");
+		paymentButton.id = "fp-" + sha256(seed.toString() + "!!@xXx");
 		buttonIDList.push(paymentButton.id);
 
 		const fpresponse = paymentButton.querySelectorAll('[name="fp-response"]');
@@ -198,8 +198,9 @@ async function Pay(_buttonID) {
 					const cryptoABI = [{ "constant": false, "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "name": "balance", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }, { "name": "_spender", "type": "address" }], "name": "allowance", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }];
 
 					const web3Instance = new Web3(provider);
-					web3Instance.eth.transactionBlockTimeout = 12000;
-					web3Instance.eth.transactionPollingTimeout = 400000;
+					web3Instance.eth.transactionBlockTimeout = 8000;
+					web3Instance.eth.transactionPollingTimeout = 300000;
+					web3Instance.eth.transactionPollingInterval = 2000;
 
 					let parentAddress;
 
@@ -403,24 +404,18 @@ async function Pay(_buttonID) {
 
 														let newTxObject = await web3Instance.eth.getTransaction(_txHash);
 
-														if (newTxObject != undefined) {
+														if (newTxObject != null) {
 
-															try {
+															let receipt = await web3Instance.eth.getTransactionReceipt(_txHash);
 
-																let receipt = await web3Instance.eth.getTransactionReceipt(_txHash);
+															if (receipt != null && receipt.status == true) {
 
-																if (receipt.status == true) {
+																clearInterval(pollingTransaction);
 
-																	clearInterval(pollingTransaction);
-
-																	sendMessage("Payment was successful");
-																	setTimeout(() => { canProcess = true; }, 1000);
-																}
+																sendMessage("Payment was successful");
+																setTimeout(() => { canProcess = true; }, 1000);
 															}
-															catch (e) {
 
-																//console.log("Receipt not found");
-															}
 														}
 														else {
 
