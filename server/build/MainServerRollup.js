@@ -357,16 +357,18 @@ class Orders extends EventEmitter {
         return "0x" + sha256(iSymbol + asciiSender + asciiReceiver + asciiAmount + asciiTimestamp).toString();
     }
 
-    #encryptData(iData) {
+    #encryptData(iData, iKey) {
 
-        return Buffer.from(new AES256().encrypt(iData, this.#myENV.ordersAESSeed), "ascii").toString("base64");
+        const tmp = new AES256().encrypt(iData, this.#myENV.ordersAESSeed + iKey.toLowerCase());
+
+        return Buffer.from(tmp, "ascii").toString("base64");
     }
 
-    decrypt(iData) {
+    decrypt(iData, iKey) {
 
         const tmp = Buffer.from(iData.toString(), "base64").toString("ascii");
 
-        return new AES256().decrypt(tmp, this.#myENV.ordersAESSeed);
+        return new AES256().decrypt(tmp, this.#myENV.ordersAESSeed + iKey.toLowerCase());
     }
 
     async #updateCrypto(forceUpdate) {
@@ -664,7 +666,7 @@ class Orders extends EventEmitter {
         triggerObject.triggerCount = this.#pendingOrdersObject[iOrderFilePath].triggerCount;
 
         triggerObject.url = orderObject.order.postData.url;
-        triggerObject.postData = this.#encryptData(iOrderFilePath);
+        triggerObject.postData = this.#encryptData(iOrderFilePath, orderObject.order.receiver);
         triggerObject.claimed = orderObject.order.claimCounter;
 
         return triggerObject;
@@ -764,9 +766,9 @@ wsServer.on("connection", (wsClient) => {
             const responseObject = await orders.createOrder(orderObject);
             wsServer.to("ProxyServer").emit("createOrderResponse", responseObject); //Main to Proxy
 
-        }).on("claimOrder", (encryptedOrderPath) => { //Proxy to Main
+        }).on("claimOrder", (encryptedOrderPath, receiverWallet) => { //Proxy to Main
 
-            const orderPath = orders.decrypt(encryptedOrderPath);
+            const orderPath = orders.decrypt(encryptedOrderPath, receiverWallet);
 
             if (orderPath) {
 

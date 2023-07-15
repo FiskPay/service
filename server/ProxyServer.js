@@ -105,7 +105,7 @@ serverHandler.post("/createOrder*", async (req, res) => {
         res.status(200).type("json").send(JSON.stringify(responseObject)).end();
         res.connection.end();
     }
-}).get("/claimOrder/:order", async (req, res) => {
+}).get("/claimOrder/:order/:wallet", async (req, res) => {
 
     if (!connectedToMainServer) {
 
@@ -125,7 +125,7 @@ serverHandler.post("/createOrder*", async (req, res) => {
         /*pendingClaim++;
         console.log("[" + dateTime() + "] ProxyServer  >>  New claim request. Awaiting response for " + pendingClaim + " order(s)");*/
 
-        wsClient.emit("claimOrder", req.params.order);
+        wsClient.emit("claimOrder", req.params.order, req.params.wallet);
 
         let responseObject = await new Promise((resolve) => {
 

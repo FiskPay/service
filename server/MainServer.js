@@ -71,9 +71,9 @@ wsServer.on("connection", (wsClient) => {
             const responseObject = await orders.createOrder(orderObject);
             wsServer.to("ProxyServer").emit("createOrderResponse", responseObject); //Main to Proxy
 
-        }).on("claimOrder", (encryptedOrderPath) => { //Proxy to Main
+        }).on("claimOrder", (encryptedOrderPath, receiverWallet) => { //Proxy to Main
 
-            const orderPath = orders.decrypt(encryptedOrderPath);
+            const orderPath = orders.decrypt(encryptedOrderPath, receiverWallet);
 
             if (orderPath) {
 
