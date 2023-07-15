@@ -299,7 +299,7 @@ async function Pay(_buttonID) {
 							sendMessage("Transaction limit reached");
 							setTimeout(() => { canProcess = true; }, 1000);
 						}
-						else if (Number(tnow) > Number(profileObject.subscribedUntil)) {
+						else if (cryptoSymbol != "MATIC" && Number(tnow) > Number(profileObject.subscribedUntil)) {
 
 							sendMessage("Subscriber service only");
 							setTimeout(() => { canProcess = true; }, 1000);
