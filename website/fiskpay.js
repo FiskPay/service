@@ -382,13 +382,13 @@ async function Pay(_buttonID) {
 																let wallet = "Web3 wallet";
 
 																if (provider.isMetaMask === true)
-																	wallet = "MetaMask";
+																	wallet = "Brave Wallet";
 																else if (provider.isBraveWallet === true)
 																	wallet = "Brave Wallet";
 																else if (provider.isTrustWallet === true)
 																	wallet = "Trust Wallet";
 
-																sendMessage("Forwarding transaction to " + wallet);
+																sendMessage("Sign transaction on " + wallet);
 															})
 															.on("transactionHash", (txHash) => {
 
@@ -488,7 +488,7 @@ async function Pay(_buttonID) {
 																				cryptoContract.methods.approve(processorAddress, processAmount).send({ from: senderCurrentAddress, gasPrice: gas })
 																					.on("sent", () => {
 
-																						let wallet = "web3 wallet";
+																						let wallet = "Web3 wallet";
 
 																						if (provider.isMetaMask === true)
 																							wallet = "MetaMask";
@@ -497,7 +497,7 @@ async function Pay(_buttonID) {
 																						else if (provider.isTrustWallet === true)
 																							wallet = "Trust Wallet";
 
-																						sendMessage("Forwarding approval to " + wallet);
+																						sendMessage("Sign approval on " + wallet);
 																					})
 																					.on("error", () => {
 
