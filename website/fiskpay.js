@@ -388,7 +388,7 @@ async function Pay(_buttonID) {
 																else if (provider.isTrustWallet === true)
 																	wallet = "TrustWallet";
 
-																sendMessage("Sign transaction on " + wallet);
+																sendMessage("Awaiting signing on " + wallet);
 															})
 															.on("transactionHash", (txHash) => {
 
@@ -497,7 +497,7 @@ async function Pay(_buttonID) {
 																						else if (provider.isTrustWallet === true)
 																							wallet = "TrustWallet";
 
-																						sendMessage("Sign approval on " + wallet);
+																						sendMessage("Awaiting signing on " + wallet);
 																					})
 																					.on("error", () => {
 
