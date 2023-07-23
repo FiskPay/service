@@ -485,7 +485,7 @@ async function Pay(_buttonID) {
 																		web3Instance.eth.getGasPrice()
 																			.then((gas) => {
 
-																				cryptoContract.methods.approve(processorAddress, processAmount).send({ from: senderCurrentAddress, gasPrice: gas })
+																				cryptoContract.methods.approve(processorAddress, processAmount + "0").send({ from: senderCurrentAddress, gasPrice: gas })
 																					.on("sent", () => {
 
 																						let wallet = "Web3 wallet";
