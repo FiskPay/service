@@ -382,11 +382,11 @@ async function Pay(_buttonID) {
 																let wallet = "Web3 wallet";
 
 																if (provider.isMetaMask === true)
-																	wallet = "Brave Wallet";
+																	wallet = "MetaMask";
 																else if (provider.isBraveWallet === true)
-																	wallet = "Brave Wallet";
+																	wallet = "BraveWallet";
 																else if (provider.isTrustWallet === true)
-																	wallet = "Trust Wallet";
+																	wallet = "TrustWallet";
 
 																sendMessage("Sign transaction on " + wallet);
 															})
@@ -493,9 +493,9 @@ async function Pay(_buttonID) {
 																						if (provider.isMetaMask === true)
 																							wallet = "MetaMask";
 																						else if (provider.isBraveWallet === true)
-																							wallet = "Brave Wallet";
+																							wallet = "BraveWallet";
 																						else if (provider.isTrustWallet === true)
-																							wallet = "Trust Wallet";
+																							wallet = "TrustWallet";
 
 																						sendMessage("Sign approval on " + wallet);
 																					})
