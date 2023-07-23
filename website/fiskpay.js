@@ -423,7 +423,7 @@ async function Pay(_buttonID) {
 
 																clearInterval(pollingTransaction);
 
-																sendMessage("Payment was successful");
+																sendMessage("Transaction was successful");
 																setTimeout(() => { canProcess = true; }, 1000);
 															}
 														}
