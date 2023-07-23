@@ -294,12 +294,12 @@ async function Pay(_buttonID) {
 						const transactionsPerSeason = await subscribersContract.methods.GetTransactionsPerSeason().call({ from: senderCurrentAddress });
 						const tnow = Math.floor(Date.now() / 1000);
 
-						if (cryptoSymbol == "MATIC" && Number(tnow) > Number(profileObject.subscribedUntil) && Number(profileObject.transactionCount) >= Number(transactionsPerSeason)) {
+						if (cryptoSymbol == "MATIC" && tnow > Number(profileObject.subscribedUntil) && Number(profileObject.transactionCount) >= Number(transactionsPerSeason)) {
 
 							sendMessage("Transaction limit reached");
 							setTimeout(() => { canProcess = true; }, 1000);
 						}
-						else if (cryptoSymbol != "MATIC" && Number(tnow) > Number(profileObject.subscribedUntil)) {
+						else if (cryptoSymbol != "MATIC" && tnow > Number(profileObject.subscribedUntil)) {
 
 							sendMessage("Subscriber service only");
 							setTimeout(() => { canProcess = true; }, 1000);
@@ -360,6 +360,11 @@ async function Pay(_buttonID) {
 
 											function process(_cryptoSymbol, _processAmount, _processVerification, _processTimestamp) {
 
+												let expiredFail = setTimeout(async () => {
+
+													sendMessage("Transaction will fail / expired");
+												}, 900000 - (Math.floor(Date.now() / 1000) - Number(_processTimestamp)));
+
 												let amount = "0";
 												let value = "0";
 
@@ -374,7 +379,7 @@ async function Pay(_buttonID) {
 														processorContract.methods.Process(_cryptoSymbol, amount, receiverAddress, _processVerification, _processTimestamp).send({ from: senderCurrentAddress, value: value, gasPrice: gas })
 															.on("sent", () => {
 
-																let wallet = "web3 wallet";
+																let wallet = "Web3 wallet";
 
 																if (provider.isMetaMask === true)
 																	wallet = "MetaMask";
@@ -383,16 +388,22 @@ async function Pay(_buttonID) {
 																else if (provider.isTrustWallet === true)
 																	wallet = "Trust Wallet";
 
-																sendMessage("Forwarding payment to " + wallet);
+																sendMessage("Forwarding transaction to " + wallet);
 															})
 															.on("transactionHash", (txHash) => {
 
+																clearTimeout(expiredFail);
+
 																startPolling(txHash);
-																sendMessage("Payment submitted to blockchain");
+																sendMessage("Transaction submitted to blockchain");
 															})
 															.on("error", () => {
 
-																sendMessage("Payment has been canceled");
+																if (Math.floor(Date.now() / 1000) - Number(_processTimestamp) >= 900)
+																	sendMessage("Transaction failed / expired");
+																else
+																	sendMessage("Transaction canceled");
+
 																setTimeout(() => { canProcess = true; }, 1000);
 															});
 													});
@@ -415,7 +426,6 @@ async function Pay(_buttonID) {
 																sendMessage("Payment was successful");
 																setTimeout(() => { canProcess = true; }, 1000);
 															}
-
 														}
 														else {
 
