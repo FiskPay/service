@@ -363,7 +363,7 @@ async function Pay(_buttonID) {
 												let expiredFail = setTimeout(async () => {
 
 													sendMessage("Transaction will fail / expired");
-												}, 900000 - (Math.floor(Date.now() / 1000) - Number(_processTimestamp)));
+												}, 900000 - (Date.now() - Number(_processTimestamp) * 1000));
 
 												let amount = "0";
 												let value = "0";
@@ -399,7 +399,7 @@ async function Pay(_buttonID) {
 															})
 															.on("error", () => {
 
-																if (Math.floor(Date.now() / 1000) - Number(_processTimestamp) >= 900)
+																if (Date.now() - Number(_processTimestamp) * 1000 >= 900000)
 																	sendMessage("Transaction failed / expired");
 																else
 																	sendMessage("Transaction canceled");
