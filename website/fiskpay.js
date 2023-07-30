@@ -15,7 +15,7 @@ script.defer = true;
 document.head.appendChild(script);
 
 const url = new URL(document.currentScript.src);
-const urlParameters = new URLSearchParams(url.search);
+//const urlParameters = new URLSearchParams(url.search);
 
 let receiverAddress = null;
 let canProcess = false;
@@ -263,7 +263,7 @@ async function Pay(_buttonID) {
 						sendMessage("Amount is zero");
 						setTimeout(() => { canProcess = true; }, 1000);
 					}
-					else if (!(/^https?:\/\/(((www\.)?([a-zA-Z]+\-?[a-zA-Z]+\.)+[a-zA-Z]{2,7})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))((:6553[0-5]|:655[0-2][0-9]|:65[0-4][0-9]{2}|:6[0-4][0-9]{3}|:[1-5][0-9]{4}|:[0-5]{0,5}|:[0-9]{1,4}))?([a-zA-Z0-9_\-\/])*(\.[a-zA-Z]{1,5})?/).test(postURL)) {
+					else if (!(/^https?:\/\/(((www\.)?(([a-zA-Z\-]+\.)+[a-zA-Z]{2,7}))|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4}))?(\/[a-zA-Z0-9_\-]+)*(\.[a-zA-Z]{1,5})?/).test(postURL)) {
 
 						sendMessage("Unaccepted postURL");
 						setTimeout(() => { canProcess = true; }, 1000);
