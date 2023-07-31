@@ -1,7 +1,7 @@
 let script = document.createElement("script");
 script.src = "https://cdnjs.cloudflare.com/ajax/libs/web3/1.10.0/web3.min.js";
 script.type = "text/javascript";
-script.setAttribute("crossorigin", 'anonymous');
+script.setAttribute("crossorigin", "anonymous");
 script.integrity = "sha512-EXk1TBrT1TC+ajcr8c+McVhGFv4xAI+8m+V7T4PwT3MdYAv47jkirleTTZh8IFtRv90ZtKPOk/4JJTGUaQ9d6Q==";
 script.defer = true;
 document.head.appendChild(script);
@@ -9,7 +9,7 @@ document.head.appendChild(script);
 script = document.createElement("script");
 script.src = "https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js";
 script.type = "text/javascript";
-script.setAttribute("crossorigin", 'anonymous');
+script.setAttribute("crossorigin", "anonymous");
 script.integrity = "sha512-szJ5FSo9hEmXXe7b5AUVtn/WnL8a5VofnFeYC2i2z03uS2LhAch7ewNLbl5flsEmTTimMN0enBZg/3sQ+YOSzQ==";
 script.defer = true;
 document.head.appendChild(script);
@@ -35,16 +35,16 @@ onload = () => {
 		paymentButton.id = "fp-" + sha256(seed.toString() + "!!@xXx");
 		buttonIDList.push(paymentButton.id);
 
-		const fpresponse = paymentButton.querySelectorAll('[name="fp-response"]');
-		const fpfiat = paymentButton.querySelectorAll('[name="fp-fiat"]');
-		const fpcrypto = paymentButton.querySelectorAll('[name="fp-crypto"]');
-		const fpamount = paymentButton.querySelectorAll('[name="fp-amount"]');
-		const fpurl = paymentButton.querySelectorAll('[name="fp-url"]');
-		const fpitem1 = paymentButton.querySelectorAll('[name="fp-item1"]');
-		const fpitem2 = paymentButton.querySelectorAll('[name="fp-item2"]');
-		const fpitem3 = paymentButton.querySelectorAll('[name="fp-item3"]');
-		const fpitem4 = paymentButton.querySelectorAll('[name="fp-item4"]');
-		const fpsubmit = paymentButton.querySelectorAll('[name="fp-submit"]');
+		const fpresponse = paymentButton.querySelectorAll("[name=\"fp-response\"]");
+		const fpfiat = paymentButton.querySelectorAll("[name=\"fp-fiat\"]");
+		const fpcrypto = paymentButton.querySelectorAll("[name=\"fp-crypto\"]");
+		const fpamount = paymentButton.querySelectorAll("[name=\"fp-amount\"]");
+		const fpurl = paymentButton.querySelectorAll("[name=\"fp-url\"]");
+		const fpitem1 = paymentButton.querySelectorAll("[name=\"fp-item1\"]");
+		const fpitem2 = paymentButton.querySelectorAll("[name=\"fp-item2\"]");
+		const fpitem3 = paymentButton.querySelectorAll("[name=\"fp-item3\"]");
+		const fpitem4 = paymentButton.querySelectorAll("[name=\"fp-item4\"]");
+		const fpsubmit = paymentButton.querySelectorAll("[name=\"fp-submit\"]");
 
 		const findArray = [fpresponse, fpfiat, fpcrypto, fpamount, fpurl, fpitem1, fpitem2, fpitem3, fpitem4, fpsubmit];
 		const namesArray = ["fp-response", "fp-fiat", "fp-crypto", "fp-amount", "fp-url", "fp-item1", "fp-item2", "fp-item3", "fp-item4", "fp-submit"];
@@ -59,9 +59,9 @@ onload = () => {
 				misconfigured = true;
 
 				if (findArray[j].length == 0)
-					consoleMsg += 'item <... name="' + namesArray[j] + '" ...> not found\n';
+					consoleMsg += "item <... name=\"" + namesArray[j] + "\" ...> not found\n";
 				else
-					consoleMsg += 'multiple instances of item <... name="' + namesArray[j] + '" ...>\n';
+					consoleMsg += "multiple instances of item <... name=\"" + namesArray[j] + "\" ...>\n";
 			}
 		}
 
@@ -97,7 +97,7 @@ onload = () => {
 	};
 
 	buttonIDListCount = buttonIDList.length;
-	receiverAddress = url.pathname.split('/')[1];
+	receiverAddress = url.pathname.split("/")[1];
 	//receiverAddress = urlParameters.get("addr");
 
 	if (receiverAddress == null)
@@ -121,437 +121,460 @@ async function Pay(_buttonID) {
 	if (buttonIDList.includes(_buttonID) == false || buttonIDListCount != buttonIDList.length)
 		canProcess = false;
 
-	if (canProcess == true) {
+	if (canProcess != true)
+		return false;
 
-		canProcess = false;
+	canProcess = false;
+
+	try {
+
+		const paymentButton = document.getElementById(_buttonID);
+		const responseMessage = paymentButton.querySelectorAll("[name=\"fp-response\"]")[0];
+
+		function sendMessage(_msg) { responseMessage.innerText = _msg; }
+
+		let senderCurrentAddress = null;
+		let senderAddressesArray = null;
+		let provider = null;
+		let network = null;
+
+		if (typeof (window.ethereum) != undefined)
+			provider = window.ethereum;
+		else if (typeof (window.web3) != undefined && typeof (window.web3.currentProvider) != undefined)
+			provider = window.web3.currentProvider;
+
+		if (provider === null) {
+
+			sendMessage("No Web3 wallet found");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
 
 		try {
 
-			let senderCurrentAddress = null;
-			let senderAddressesArray = null;
-			let provider = null;
+			network = await provider.request({ method: "eth_chainId" });
 
-			if (typeof (window.ethereum) !== "undefined" && window.ethereum != null)
-				provider = window.ethereum;
-			else if (typeof (window.web3) !== "undefined" && typeof (window.web3.currentProvider) !== "undefined" && window.web3.currentProvider != null)
-				provider = window.web3.currentProvider;
+			if (network !== "0x13881" && network !== "0x89")
+				await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x89" }] }); //Polygon Mainnet
+		}
+		catch (switchError) {
 
-			const paymentButton = document.getElementById(_buttonID);
-			let response = paymentButton.querySelectorAll('[name="fp-response"]')[0];
+			if (switchError.code === 4902) {
 
-			function sendMessage(_msg) { response.innerHTML = _msg; }
-
-			if (provider !== null) {
-
-				let network = null;
+				sendMessage("Approve Polygon network");
 
 				try {
 
-					network = await provider.request({ method: 'eth_chainId' });
-
-					if (network != 0x13881 && network != 0x89)
-						await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x89' }] }); //Polygon Mainnet
+					await provider.request({ method: "wallet_addEthereumChain", params: [{ chainId: "0x89", blockExplorerUrls: ["https://polygonscan.com/"], chainName: "Polygon Mainnet", nativeCurrency: { name: "MATIC", symbol: "MATIC", decimals: 18, }, rpcUrls: ["https://polygon-rpc.com/"], }] });
 				}
-				catch (switchError) {
+				catch (e) {
 
-					if (switchError.code === 4902) {
-
-						try {
-
-							await provider.request({ method: 'wallet_addEthereumChain', params: [{ chainId: '0x89', blockExplorerUrls: ['https://polygonscan.com/'], chainName: 'Polygon Mainnet', nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18, }, rpcUrls: ['https://polygon-rpc.com/'], }] });
-							await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x89' }] }); //Polygon Mainnet
-						}
-						catch (err) { }
-					}
+					sendMessage("Polygon declined");
+					setTimeout(() => { canProcess = true; }, 1000);
+					return false;
 				}
-				finally {
+			}
+		}
+		finally {
 
-					if (network != 0x13881 && network != 0x89)
-						network = await provider.request({ method: 'eth_chainId' });
+			network = await provider.request({ method: "eth_chainId" });
+		}
+
+		if (network !== "0x13881" && network !== "0x89") {
+
+			sendMessage("Unsupported network");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		senderAddressesArray = await provider.request({ method: "eth_requestAccounts" });
+		senderCurrentAddress = Web3.utils.toChecksumAddress(senderAddressesArray[0]);
+
+		provider.on("accountsChanged", (accounts) => {
+
+			senderAddressesArray = accounts;
+
+			if (senderAddressesArray.length == 0)
+				senderCurrentAddress = null;
+			else if (senderAddressesArray != null)
+				senderCurrentAddress = Web3.utils.toChecksumAddress(accounts[0]);
+		}).on("chainChanged", () => {
+
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		});
+
+		const parentABI = [{ "inputs": [{ "internalType": "string", "name": "_name", "type": "string" }], "name": "GetContractAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }];
+		const processorABI = [{ "inputs": [{ "internalType": "string", "name": "_symbol", "type": "string" }, { "internalType": "uint256", "name": "_amount", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "bytes32", "name": "_verification", "type": "bytes32" }, { "internalType": "uint32", "name": "_timestamp", "type": "uint32" }], "name": "Process", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "payable", "type": "function" }];
+		const currenciesABI = [{ "inputs": [{ "internalType": "string", "name": "_symbol", "type": "string" }], "name": "GetCurrencyAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }];
+		const subscribersABI = [{ "inputs": [], "name": "GetTransactionsPerSeason", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_client", "type": "address" }], "name": "Profile", "outputs": [{ "internalType": "address", "name": "referredBy", "type": "address" }, { "internalType": "uint32", "name": "referralCount", "type": "uint32" }, { "internalType": "uint256", "name": "referralEarnings", "type": "uint256" }, { "internalType": "uint32", "name": "transactionCount", "type": "uint32" }, { "internalType": "uint32", "name": "lastTransaction", "type": "uint32" }, { "internalType": "bool", "name": "isSubscriber", "type": "bool" }, { "internalType": "uint32", "name": "subscribedUntil", "type": "uint32" }, { "internalType": "uint32", "name": "subscribtionDaysLeft", "type": "uint32" }, { "internalType": "uint32", "name": "nextSeason", "type": "uint32" }, { "internalType": "uint32", "name": "seasonDaysLeft", "type": "uint32" }], "stateMutability": "view", "type": "function" }];
+		const cryptoABI = [{ "constant": false, "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "name": "balance", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }, { "name": "_spender", "type": "address" }], "name": "allowance", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }];
+
+		const web3Instance = new Web3(provider);
+		web3Instance.eth.transactionBlockTimeout = 12000;
+		web3Instance.eth.transactionPollingTimeout = 400000;
+		web3Instance.eth.transactionPollingInterval = 1000;
+
+		let parentAddress;
+
+		if (network === "0x89")                  //Polygon
+			parentAddress = "0x163342FAe2bBe3303e5A9ADCe4BC9fb44d0FF062";
+		else                                    //Mumbai
+			parentAddress = "0xfc82AD7B08bC6AF0b0046ee8aE6b12df3457DE23";
+
+		const parentContract = await new web3Instance.eth.Contract(parentABI, parentAddress);
+
+		const processorAddress = await parentContract.methods.GetContractAddress(".Payment.Processor").call({ from: senderCurrentAddress });
+		const processorContract = await new web3Instance.eth.Contract(processorABI, processorAddress);
+
+		const currenciesAddress = await parentContract.methods.GetContractAddress(".Payment.Currencies").call({ from: senderCurrentAddress });
+		const currenciesContract = await new web3Instance.eth.Contract(currenciesABI, currenciesAddress);
+
+		const subscribersAddress = await parentContract.methods.GetContractAddress(".Payment.Subscribers").call({ from: senderCurrentAddress });
+		const subscribersContract = await new web3Instance.eth.Contract(subscribersABI, subscribersAddress);
+
+		let fiatSymbol = paymentButton.querySelectorAll("[name=\"fp-fiat\"]")[0].value;
+		let cryptoSymbol = paymentButton.querySelectorAll("[name=\"fp-crypto\"]")[0].value;
+		const inputAmount = paymentButton.querySelectorAll("[name=\"fp-amount\"]")[0].value;
+
+		const postURL = paymentButton.querySelectorAll("[name=\"fp-url\"]")[0].value;
+		const postItem1 = paymentButton.querySelectorAll("[name=\"fp-item1\"]")[0].value;
+		const postItem2 = paymentButton.querySelectorAll("[name=\"fp-item2\"]")[0].value;
+		const postItem3 = paymentButton.querySelectorAll("[name=\"fp-item3\"]")[0].value;
+		const postItem4 = paymentButton.querySelectorAll("[name=\"fp-item4\"]")[0].value;
+
+		if (cryptoSymbol.toLowerCase() == "matic")
+			cryptoSymbol = "MATIC";
+
+		if (fiatSymbol.toLowerCase() == "crypto")
+			fiatSymbol = "crypto";
+
+		const cryptoAddress = await currenciesContract.methods.GetCurrencyAddress(cryptoSymbol).call({ from: senderCurrentAddress });
+
+		if (((cryptoAddress == "0x0000000000000000000000000000000000000000" && network === "0x89") || network === "0x13881") && cryptoSymbol != "MATIC") {
+
+			sendMessage(cryptoSymbol + " is not supported");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if (!((/^[a-zA-Z]{3}$/).test(fiatSymbol) || fiatSymbol == "crypto")) {
+
+			sendMessage("Unaccepted fiat symbol");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if (inputAmount.toString() == "") {
+
+			sendMessage("Insert amount");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if (!((/^[0-9]+(\.[0-9]+)?$/).test(inputAmount.toString()))) {
+
+			sendMessage("Unaccepted amount format");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if (inputAmount == 0) {
+
+			sendMessage("Amount is zero");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if (!(/^https?:\/\/(((www\.)?(([a-zA-Z\-]+\.)+[a-zA-Z]{2,7}))|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4}))?(\/[a-zA-Z0-9_\-]+)*(\.[a-zA-Z]{1,5})?$/).test(postURL)) {
+
+			sendMessage("Unaccepted postURL");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if ((/exec\((.*)\)/).test(postItem1)) {
+
+			sendMessage("Unaccepted postItem1");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if ((/exec\((.*)\)/).test(postItem2)) {
+
+			sendMessage("Unaccepted postItem2");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if ((/exec\((.*)\)/).test(postItem3)) {
+
+			sendMessage("Unaccepted postItem3");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if ((/exec\((.*)\)/).test(postItem4)) {
+
+			sendMessage("Unaccepted postItem4");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		const profileObject = await subscribersContract.methods.Profile(receiverAddress).call({ from: senderCurrentAddress });
+		const transactionsPerSeason = await subscribersContract.methods.GetTransactionsPerSeason().call({ from: senderCurrentAddress });
+		const tnow = Math.floor(Date.now() / 1000);
+
+		if (cryptoSymbol == "MATIC" && tnow > Number(profileObject.subscribedUntil) && Number(profileObject.transactionCount) >= Number(transactionsPerSeason)) {
+
+			sendMessage("Transaction limit reached");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		if (cryptoSymbol != "MATIC" && tnow > Number(profileObject.subscribedUntil)) {
+
+			sendMessage("Subscriber service only");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
+		const sendObject = {
+
+			"network": network,
+			"senderAddress": senderCurrentAddress,
+			"receiverAddress": receiverAddress,
+			"cryptoSymbol": cryptoSymbol,
+			"fiatSymbol": fiatSymbol,
+			"amount": inputAmount,
+			"postURL": postURL,
+			"postItem1": postItem1,
+			"postItem2": postItem2,
+			"postItem3": postItem3,
+			"postItem4": postItem4
+		};
+
+		const url = "https://app.fiskpay.com/createOrder";
+		const sendString = JSON.stringify(sendObject);
+
+		const http = new XMLHttpRequest();
+
+		http.onerror = () => {
+
+			sendMessage("Service unavailable");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		};
+
+		http.onloadstart = () => {
+
+			sendMessage("Fetching blockchain data");
+		};
+
+		http.onloadend = async () => {
+
+			if (http.readyState === 4 && http.status === 200) {
+
+				const responseString = http.response;
+				let responseObject = null;
+
+				try { responseObject = JSON.parse(responseString); }
+				catch (e) { }
+
+				if (responseObject === null) {
+
+					sendMessage("Non JSON response received");
+					setTimeout(() => { canProcess = true; }, 1000);
+					return false;
 				}
 
-				if (network == 0x13881 || network == 0x89) {
+				if (responseObject.error !== false) {
 
-					senderAddressesArray = await provider.request({ method: 'eth_requestAccounts' });
-					senderCurrentAddress = Web3.utils.toChecksumAddress(senderAddressesArray[0]);
+					sendMessage(responseObject.message);
+					setTimeout(() => { canProcess = true; }, 1000);
+					return false;
+				}
 
-					provider.on('accountsChanged', (accounts) => {
+				function process(_cryptoSymbol, _processAmount, _processVerification, _processTimestamp) {
 
-						senderAddressesArray = accounts;
+					let expiredFail = setTimeout(async () => {
 
-						if (senderAddressesArray.length == 0)
-							senderCurrentAddress = null;
-						else if (senderAddressesArray != null)
-							senderCurrentAddress = Web3.utils.toChecksumAddress(accounts[0]);
-					});
+						sendMessage("Transaction will fail / expired");
+					}, 900000 - (Date.now() - Number(_processTimestamp) * 1000));
 
-					provider.on('chainChanged', () => {
+					let amount = "0";
+					let value = "0";
 
-						return false;
-						//window.location.reload();
-					});
+					if (_cryptoSymbol == "MATIC")
+						value = _processAmount;
+					else
+						amount = _processAmount;
 
-					const parentABI = [{ "inputs": [{ "internalType": "string", "name": "_name", "type": "string" }], "name": "GetContractAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }];
-					const processorABI = [{ "inputs": [{ "internalType": "string", "name": "_symbol", "type": "string" }, { "internalType": "uint256", "name": "_amount", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "bytes32", "name": "_verification", "type": "bytes32" }, { "internalType": "uint32", "name": "_timestamp", "type": "uint32" }], "name": "Process", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "payable", "type": "function" }];
-					const currenciesABI = [{ "inputs": [{ "internalType": "string", "name": "_symbol", "type": "string" }], "name": "GetCurrencyAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }];
-					const subscribersABI = [{ "inputs": [], "name": "GetTransactionsPerSeason", "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_client", "type": "address" }], "name": "Profile", "outputs": [{ "internalType": "address", "name": "referredBy", "type": "address" }, { "internalType": "uint32", "name": "referralCount", "type": "uint32" }, { "internalType": "uint256", "name": "referralEarnings", "type": "uint256" }, { "internalType": "uint32", "name": "transactionCount", "type": "uint32" }, { "internalType": "uint32", "name": "lastTransaction", "type": "uint32" }, { "internalType": "bool", "name": "isSubscriber", "type": "bool" }, { "internalType": "uint32", "name": "subscribedUntil", "type": "uint32" }, { "internalType": "uint32", "name": "subscribtionDaysLeft", "type": "uint32" }, { "internalType": "uint32", "name": "nextSeason", "type": "uint32" }, { "internalType": "uint32", "name": "seasonDaysLeft", "type": "uint32" }], "stateMutability": "view", "type": "function" }];
-					const cryptoABI = [{ "constant": false, "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "name": "balance", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }, { "name": "_spender", "type": "address" }], "name": "allowance", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }];
+					web3Instance.eth.getGasPrice()
+						.then((gas) => {
 
-					const web3Instance = new Web3(provider);
-					web3Instance.eth.transactionBlockTimeout = 12000;
-					web3Instance.eth.transactionPollingTimeout = 400000;
-					web3Instance.eth.transactionPollingInterval = 1000;
+							processorContract.methods.Process(_cryptoSymbol, amount, receiverAddress, _processVerification, _processTimestamp).send({ from: senderCurrentAddress, value: value, gasPrice: gas })
+								.on("sent", () => {
 
-					let parentAddress;
+									let wallet = "Web3 wallet";
 
-					if (network == 0x89)                    //Polygon
-						parentAddress = "0x163342FAe2bBe3303e5A9ADCe4BC9fb44d0FF062";
-					else                                    //Mumbai
-						parentAddress = "0xfc82AD7B08bC6AF0b0046ee8aE6b12df3457DE23";
+									if (provider.isMetaMask === true)
+										wallet = "MetaMask";
+									else if (provider.isBraveWallet === true)
+										wallet = "BraveWallet";
+									else if (provider.isTrustWallet === true)
+										wallet = "TrustWallet";
 
-					const parentContract = await new web3Instance.eth.Contract(parentABI, parentAddress);
+									sendMessage("Awaiting signing on " + wallet);
+								})
+								.on("transactionHash", (txHash) => {
 
-					const processorAddress = await parentContract.methods.GetContractAddress(".Payment.Processor").call({ from: senderCurrentAddress });
-					const processorContract = await new web3Instance.eth.Contract(processorABI, processorAddress);
+									clearTimeout(expiredFail);
 
-					const currenciesAddress = await parentContract.methods.GetContractAddress(".Payment.Currencies").call({ from: senderCurrentAddress });
-					const currenciesContract = await new web3Instance.eth.Contract(currenciesABI, currenciesAddress);
-
-					const subscribersAddress = await parentContract.methods.GetContractAddress(".Payment.Subscribers").call({ from: senderCurrentAddress });
-					const subscribersContract = await new web3Instance.eth.Contract(subscribersABI, subscribersAddress);
-
-					let fiatSymbol = paymentButton.querySelectorAll('[name="fp-fiat"]')[0].value;
-					let cryptoSymbol = paymentButton.querySelectorAll('[name="fp-crypto"]')[0].value;
-					const inputAmount = paymentButton.querySelectorAll('[name="fp-amount"]')[0].value;
-
-					const postURL = paymentButton.querySelectorAll('[name="fp-url"]')[0].value;
-					const postItem1 = paymentButton.querySelectorAll('[name="fp-item1"]')[0].value;
-					const postItem2 = paymentButton.querySelectorAll('[name="fp-item2"]')[0].value;
-					const postItem3 = paymentButton.querySelectorAll('[name="fp-item3"]')[0].value;
-					const postItem4 = paymentButton.querySelectorAll('[name="fp-item4"]')[0].value;
+									startPolling(txHash);
+									sendMessage("Transaction submitted to blockchain");
+								})
+								.on("error", () => {
 
-					if (cryptoSymbol.toLowerCase() == "matic")
-						cryptoSymbol = "MATIC";
+									if (Date.now() - Number(_processTimestamp) * 1000 >= 900000)
+										sendMessage("Transaction failed / expired");
+									else
+										sendMessage("Transaction canceled");
 
-					if (fiatSymbol.toLowerCase() == "crypto")
-						fiatSymbol = "crypto";
+									setTimeout(() => { canProcess = true; }, 1000);
+									return false;
+								});
+						});
 
-					const cryptoAddress = await currenciesContract.methods.GetCurrencyAddress(cryptoSymbol).call({ from: senderCurrentAddress });
+					async function startPolling(_txHash) {
 
-					if (((cryptoAddress == "0x0000000000000000000000000000000000000000" && network == 0x89) || network == 0x13881) && cryptoSymbol != "MATIC") {
+						let nonce = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
+						let pollingTransaction = setInterval(async () => {
 
-						sendMessage(cryptoSymbol + " is not supported");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if (!((/^[a-zA-Z]{3}$/).test(fiatSymbol) || fiatSymbol == "crypto")) {
+							let transaction = await web3Instance.eth.getTransaction(_txHash);
 
-						sendMessage("Unaccepted fiat symbol");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if (inputAmount.toString() == "") {
+							if (transaction != null) {
 
-						sendMessage("Insert amount");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if (!((/^[0-9]+(\.[0-9]+)?$/).test(inputAmount.toString()))) {
+								let receipt = await web3Instance.eth.getTransactionReceipt(_txHash);
 
-						sendMessage("Unaccepted amount format");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if (inputAmount == 0) {
+								if (receipt != null && receipt.status == true) {
 
-						sendMessage("Amount is zero");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if (!(/^https?:\/\/(((www\.)?(([a-zA-Z\-]+\.)+[a-zA-Z]{2,7}))|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4}))?(\/[a-zA-Z0-9_\-]+)*(\.[a-zA-Z]{1,5})?$/).test(postURL)) {
+									clearInterval(pollingTransaction);
 
-						sendMessage("Unaccepted postURL");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if ((/exec\((.*)\)/).test(postItem1)) {
-
-						sendMessage("Unaccepted postItem1");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if ((/exec\((.*)\)/).test(postItem2)) {
-
-						sendMessage("Unaccepted postItem2");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if ((/exec\((.*)\)/).test(postItem3)) {
-
-						sendMessage("Unaccepted postItem3");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else if ((/exec\((.*)\)/).test(postItem4)) {
-
-						sendMessage("Unaccepted postItem4");
-						setTimeout(() => { canProcess = true; }, 1000);
-					}
-					else {
-
-						const profileObject = await subscribersContract.methods.Profile(receiverAddress).call({ from: senderCurrentAddress });
-						const transactionsPerSeason = await subscribersContract.methods.GetTransactionsPerSeason().call({ from: senderCurrentAddress });
-						const tnow = Math.floor(Date.now() / 1000);
-
-						if (cryptoSymbol == "MATIC" && tnow > Number(profileObject.subscribedUntil) && Number(profileObject.transactionCount) >= Number(transactionsPerSeason)) {
-
-							sendMessage("Transaction limit reached");
-							setTimeout(() => { canProcess = true; }, 1000);
-						}
-						else if (cryptoSymbol != "MATIC" && tnow > Number(profileObject.subscribedUntil)) {
-
-							sendMessage("Subscriber service only");
-							setTimeout(() => { canProcess = true; }, 1000);
-						}
-						else {
-
-							const sendObject = {
-
-								"network": network,
-								"senderAddress": senderCurrentAddress,
-								"receiverAddress": receiverAddress,
-								"cryptoSymbol": cryptoSymbol,
-								"fiatSymbol": fiatSymbol,
-								"amount": inputAmount,
-								"postURL": postURL,
-								"postItem1": postItem1,
-								"postItem2": postItem2,
-								"postItem3": postItem3,
-								"postItem4": postItem4
-							};
-
-							const url = "https://app.fiskpay.com/createOrder";
-							const sendString = JSON.stringify(sendObject);
-
-							const http = new XMLHttpRequest();
-
-							http.onerror = () => {
-
-								sendMessage("Service unavailable");
-								setTimeout(() => { canProcess = true; }, 1000);
-							};
-
-							http.onloadstart = () => {
-
-								sendMessage("Fetching blockchain data");
-							};
-
-							http.onloadend = async () => {
-
-								if (http.readyState === 4 && http.status === 200) {
-
-									const responseString = http.response;
-									let responseObject = null;
-
-									try { responseObject = JSON.parse(responseString); }
-									catch (e) {
-										//console.log(e);
-									}
-
-									if (responseObject !== null) {
-
-										if (responseObject.error !== false) {
-
-											sendMessage(responseObject.message);
-											setTimeout(() => { canProcess = true; }, 1000);
-										}
-										else {
-
-											function process(_cryptoSymbol, _processAmount, _processVerification, _processTimestamp) {
-
-												let expiredFail = setTimeout(async () => {
-
-													sendMessage("Transaction will fail / expired");
-												}, 900000 - (Date.now() - Number(_processTimestamp) * 1000));
-
-												let amount = "0";
-												let value = "0";
-
-												if (_cryptoSymbol == "MATIC")
-													value = _processAmount;
-												else
-													amount = _processAmount;
-
-												web3Instance.eth.getGasPrice()
-													.then((gas) => {
-
-														processorContract.methods.Process(_cryptoSymbol, amount, receiverAddress, _processVerification, _processTimestamp).send({ from: senderCurrentAddress, value: value, gasPrice: gas })
-															.on("sent", () => {
-
-																let wallet = "Web3 wallet";
-
-																if (provider.isMetaMask === true)
-																	wallet = "MetaMask";
-																else if (provider.isBraveWallet === true)
-																	wallet = "BraveWallet";
-																else if (provider.isTrustWallet === true)
-																	wallet = "TrustWallet";
-
-																sendMessage("Awaiting signing on " + wallet);
-															})
-															.on("transactionHash", (txHash) => {
-
-																clearTimeout(expiredFail);
-
-																startPolling(txHash);
-																sendMessage("Transaction submitted to blockchain");
-															})
-															.on("error", () => {
-
-																if (Date.now() - Number(_processTimestamp) * 1000 >= 900000)
-																	sendMessage("Transaction failed / expired");
-																else
-																	sendMessage("Transaction canceled");
-
-																setTimeout(() => { canProcess = true; }, 1000);
-															});
-													});
-
-												async function startPolling(_txHash) {
-
-													let nonce = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
-													let pollingTransaction = setInterval(async () => {
-
-														let transaction = await web3Instance.eth.getTransaction(_txHash);
-
-														if (transaction != null) {
-
-															let receipt = await web3Instance.eth.getTransactionReceipt(_txHash);
-
-															if (receipt != null && receipt.status == true) {
-
-																clearInterval(pollingTransaction);
-
-																sendMessage("Transaction was successful");
-																setTimeout(() => { canProcess = true; }, 1000);
-															}
-														}
-														else {
-
-															clearInterval(pollingTransaction);
-
-															sendMessage("Action submitted to the blockchain");
-
-															let pollingNonce = setInterval(async () => {
-
-																let latestCount = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
-
-																if (nonce != latestCount) {
-
-																	clearInterval(pollingNonce);
-
-																	sendMessage("Action was successful");
-																	setTimeout(() => { canProcess = true; }, 1000);
-																}
-															}, 1500);
-														}
-													}, 1500);
-												}
-											}
-
-											const processAmount = responseObject.data.amount;
-											const processVerification = responseObject.data.verification;
-											const processTimestamp = responseObject.data.timestamp;
-
-											if (cryptoSymbol == "MATIC") {
-
-												web3Instance.eth.getBalance(senderCurrentAddress)
-													.then((balance) => {
-
-														if (BigInt(balance) >= BigInt(processAmount) && BigInt(processAmount) > BigInt(0))
-															process("MATIC", processAmount, processVerification, processTimestamp);
-														else {
-
-															sendMessage("Insufficient MATIC balance");
-															setTimeout(() => { canProcess = true; }, 1000);
-														}
-													});
-											}
-											else {
-
-												const cryptoContract = await new web3Instance.eth.Contract(cryptoABI, cryptoAddress);
-
-												cryptoContract.methods.balanceOf(senderCurrentAddress).call({ from: senderCurrentAddress })
-													.then((balance) => {
-
-														if (BigInt(balance) >= BigInt(processAmount) && BigInt(processAmount) > BigInt(0)) {
-
-															cryptoContract.methods.allowance(senderCurrentAddress, processorAddress).call({ from: senderCurrentAddress })
-																.then((allowance) => {
-
-																	if (BigInt(allowance) < BigInt(processAmount)) {
-
-																		web3Instance.eth.getGasPrice()
-																			.then((gas) => {
-
-																				cryptoContract.methods.approve(processorAddress, processAmount + "0").send({ from: senderCurrentAddress, gasPrice: gas })
-																					.on("sent", () => {
-
-																						let wallet = "Web3 wallet";
-
-																						if (provider.isMetaMask === true)
-																							wallet = "MetaMask";
-																						else if (provider.isBraveWallet === true)
-																							wallet = "BraveWallet";
-																						else if (provider.isTrustWallet === true)
-																							wallet = "TrustWallet";
-
-																						sendMessage("Awaiting approval on " + wallet);
-																					})
-																					.on("error", () => {
-
-																						sendMessage("Approval canceled");
-																						setTimeout(() => { canProcess = true; }, 1000);
-																					})
-																					.on("receipt", async () => {
-																						process(cryptoSymbol, processAmount, processVerification, processTimestamp);
-																					});
-																			});
-																	}
-																	else
-																		process(cryptoSymbol, processAmount, processVerification, processTimestamp);
-																});
-														}
-														else {
-
-															sendMessage("Insufficient " + cryptoSymbol + " balance");
-															setTimeout(() => { canProcess = true; }, 1000);
-														}
-													});
-											}
-										}
-									}
-									else {
-
-										sendMessage("Response is not a JSON");
-										setTimeout(() => { canProcess = true; }, 1000);
-									}
+									sendMessage("Transaction was successful");
+									setTimeout(() => { canProcess = true; }, 1500);
+									return true;
 								}
-							};
+							}
+							else {
 
-							http.open("POST", url, true);
-							http.setRequestHeader("Content-type", "application/json");
-							http.send(sendString);
-						}
+								clearInterval(pollingTransaction);
+
+								sendMessage("Action submitted to the blockchain");
+
+								let pollingNonce = setInterval(async () => {
+
+									let latestCount = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
+
+									if (nonce != latestCount) {
+
+										clearInterval(pollingNonce);
+
+										sendMessage("Action was successful");
+										setTimeout(() => { canProcess = true; }, 1500);
+										return true;
+									}
+								}, 1500);
+							}
+						}, 1500);
 					}
+				}
+
+				const processAmount = responseObject.data.amount;
+				const processVerification = responseObject.data.verification;
+				const processTimestamp = responseObject.data.timestamp;
+
+				if (cryptoSymbol == "MATIC") {
+
+					web3Instance.eth.getBalance(senderCurrentAddress)
+						.then((balance) => {
+
+							if (BigInt(balance) >= BigInt(processAmount) && BigInt(processAmount) > BigInt(0))
+								process("MATIC", processAmount, processVerification, processTimestamp);
+							else {
+
+								sendMessage("Insufficient MATIC balance");
+								setTimeout(() => { canProcess = true; }, 1000);
+								return false;
+							}
+						});
 				}
 				else {
 
-					sendMessage("Wrong network");
-					setTimeout(() => { canProcess = true; }, 1000);
-				}
-			}
-			else {
+					const cryptoContract = await new web3Instance.eth.Contract(cryptoABI, cryptoAddress);
 
-				sendMessage("No blockchain connection");
-				setTimeout(() => { canProcess = true; }, 1000);
+					cryptoContract.methods.balanceOf(senderCurrentAddress).call({ from: senderCurrentAddress })
+						.then((balance) => {
+
+							if (BigInt(balance) >= BigInt(processAmount) && BigInt(processAmount) > BigInt(0)) {
+
+								cryptoContract.methods.allowance(senderCurrentAddress, processorAddress).call({ from: senderCurrentAddress })
+									.then((allowance) => {
+
+										if (BigInt(allowance) < BigInt(processAmount)) {
+
+											web3Instance.eth.getGasPrice()
+												.then((gas) => {
+
+													cryptoContract.methods.approve(processorAddress, processAmount + "0").send({ from: senderCurrentAddress, gasPrice: gas })
+														.on("sent", () => {
+
+															let wallet = "Web3 wallet";
+
+															if (provider.isMetaMask === true)
+																wallet = "MetaMask";
+															else if (provider.isBraveWallet === true)
+																wallet = "BraveWallet";
+															else if (provider.isTrustWallet === true)
+																wallet = "TrustWallet";
+
+															sendMessage("Awaiting approval on " + wallet);
+														})
+														.on("error", () => {
+
+															sendMessage("Approval canceled");
+															setTimeout(() => { canProcess = true; }, 1000);
+															return false;
+														})
+														.on("receipt", async () => {
+															process(cryptoSymbol, processAmount, processVerification, processTimestamp);
+														});
+												});
+										}
+										else
+											process(cryptoSymbol, processAmount, processVerification, processTimestamp);
+									});
+							}
+							else {
+
+								sendMessage("Insufficient " + cryptoSymbol + " balance");
+								setTimeout(() => { canProcess = true; }, 1000);
+							}
+						});
+				}
+
+
 			}
-		}
-		catch (e) {
-			console.log(e);
-		}
+		};
+
+		http.open("POST", url, true);
+		http.setRequestHeader("Content-type", "application/json");
+		http.send(sendString);
 	}
+	catch (e) {
+		console.log(e);
+	}
+
 }
 
 let style = document.createElement("style");

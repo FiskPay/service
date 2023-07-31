@@ -172,7 +172,7 @@ async function View() {
         function getDateTime(_timestamp) {
 
             if (_timestamp == 0)
-                return "Date unavailable";
+                return "unavailable";
 
             //let tsDate = new Date(timestamp * 1000 - ((new Date()).getTimezoneOffset() * 60000));
             let tsDate = new Date(_timestamp * 1000);
@@ -197,28 +197,28 @@ async function View() {
 
         clientReferralEarningsFloat = parseFloat(clientReferralEarningsFloat.slice(0, clientReferralEarningsFloat.length - 18) + "." + clientReferralEarningsFloat.slice(clientReferralEarningsFloat.length - 18)).toFixed(6);
 
-        let subscriptionCostInUSD = subscriptionCostFloat + " <b>&#36;</b>";
+        let subscriptionCostInUSD = subscriptionCostFloat + " EUR";
         let referalProgress = clientReferralCount + "/" + subscriptionToReward;
         let referalEarningsInMatic = clientReferralEarningsFloat + " MATIC";
-        let transactionsLeft = (clientIsSubscriber) ? ("<b>&#8734;</b>/" + seasonTransactions) : (seasonTransactions - clientTransactionCount + "/" + seasonTransactions);
+        let transactionsLeft = (clientIsSubscriber) ? ("infinite") : (seasonTransactions - clientTransactionCount + " / " + seasonTransactions);
         let latestTransactionDate = getDateTime(clientLastTransaction);
         let subscriptionExpireDate = getDateTime(clientSubscribedUntil);
         let nextSeasonDate = getDateTime(clientNextSeason);
         let seasonProgress = seasonDays - clientSeasonDaysLeft + "/" + seasonDays;
-        let maticValueInUSD = maticValueFloat.toFixed(2) + " <b>&#36;</b>";
+        let maticValueInUSD = maticValueFloat.toFixed(2) + " EUR";
 
-        document.getElementById("subscriptionCostInUSD").innerHTML = subscriptionCostInUSD;
-        document.getElementById("clientAddress").innerHTML = clientAddress;
-        document.getElementById("clientReferredBy").innerHTML = clientReferredBy;
-        document.getElementById("referalProgress").innerHTML = referalProgress;
-        document.getElementById("referalEarningsInMatic").innerHTML = referalEarningsInMatic;
-        document.getElementById("transactionsLeft").innerHTML = transactionsLeft;
-        document.getElementById("latestTransactionDate").innerHTML = latestTransactionDate;
-        document.getElementById("clientSubscribtionDaysLeft").innerHTML = clientSubscribtionDaysLeft;
-        document.getElementById("subscriptionExpireDate").innerHTML = subscriptionExpireDate;
-        document.getElementById("seasonProgress").innerHTML = seasonProgress;
-        document.getElementById("nextSeasonDate").innerHTML = nextSeasonDate;
-        document.getElementById("maticValueInUSD").innerHTML = maticValueInUSD;
+        document.getElementById("subscriptionCostInUSD").innerText = subscriptionCostInUSD;
+        document.getElementById("clientAddress").innerText = clientAddress;
+        document.getElementById("clientReferredBy").innerText = clientReferredBy;
+        document.getElementById("referalProgress").innerText = referalProgress;
+        document.getElementById("referalEarningsInMatic").innerText = referalEarningsInMatic;
+        document.getElementById("transactionsLeft").innerText = transactionsLeft;
+        document.getElementById("latestTransactionDate").innerText = latestTransactionDate;
+        document.getElementById("clientSubscribtionDaysLeft").innerText = clientSubscribtionDaysLeft;
+        document.getElementById("subscriptionExpireDate").innerText = subscriptionExpireDate;
+        document.getElementById("seasonProgress").innerText = seasonProgress;
+        document.getElementById("nextSeasonDate").innerText = nextSeasonDate;
+        document.getElementById("maticValueInUSD").innerText = maticValueInUSD;
     }
 
     function updateMaticPerDay() {
@@ -243,7 +243,7 @@ async function View() {
 
     function sendMessage(_msg) {
 
-        document.getElementById("message").innerHTML = _msg;
+        document.getElementById("message").innerText = _msg;
     }
 
     let subscribe = () => {
