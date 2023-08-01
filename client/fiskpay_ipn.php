@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($iPNData = @file_get_contents("php
 
 				if ($logTransactions == true) {
 
-					$orderDir = "./FiskPayOrders/" + date("Y-m-d", $timestamp) + "/" + $network + "/";
+					$orderDir = "./FiskPayOrders/" . date("Y-m-d", $timestamp) . "/" . $network . "/";
 
 					if (is_dir($orderDir) == false)
 						mkdir($orderDir, 0750, true);
