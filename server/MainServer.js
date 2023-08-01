@@ -129,7 +129,7 @@ wsServer.on("connection", (wsClient) => {
                         if (orderPath) {
 
                             trigger(orderPath, true); //Main to Proxy
-                            await new Promise(resolve => setTimeout(resolve, 150));
+                            await new Promise(resolve => setTimeout(resolve, 250));
                         }
 
                         //console.log("[" + dateTime() + "] MainServer  >>  " + network + " historic transaction received (" + verification + ")");
