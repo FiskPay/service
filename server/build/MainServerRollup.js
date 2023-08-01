@@ -243,8 +243,7 @@ class Orders extends EventEmitter {
         if (!(iOrderObject.amount != undefined && pattern.test(iOrderObject.amount)))
             return false;
 
-        //pattern = (/^https?:\/\/(www\.)?[a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,6}\b([a-zA-Z0-9\._?&\/:=]*)$/);
-        pattern = (/^https?:\/\/(((www\.)?(([a-zA-Z\-]+\.)+[a-zA-Z]{2,7}))|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4}))?(\/[a-zA-Z0-9_\-]+)*(\.[a-zA-Z]{1,5})?$/);
+        pattern = (/^https?:\/\/(((www\.)?(([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,7}))|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4}))?(\/[a-zA-Z0-9_\-]+)*(\.[a-zA-Z]{1,5})?$/);
 
         if (!(iOrderObject.postURL != undefined && pattern.test(iOrderObject.postURL)))
             return false;
@@ -824,7 +823,7 @@ wsServer.on("connection", (wsClient) => {
                         if (orderPath) {
 
                             trigger(orderPath, true); //Main to Proxy
-                            await new Promise(resolve => setTimeout(resolve, 150));
+                            await new Promise(resolve => setTimeout(resolve, 250));
                         }
 
                         //console.log("[" + dateTime() + "] MainServer  >>  " + network + " historic transaction received (" + verification + ")");
