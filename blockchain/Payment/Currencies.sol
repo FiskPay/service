@@ -18,8 +18,8 @@ contract Currencies{
 
 //-----------------------------------------------------------------------// v EVENTS
 
-    event CurrencyAddition(address indexed _currency);
-    event CurrencyRemoval(address indexed _currency);
+    event CurrencyAddition(address indexed currency);
+    event CurrencyRemoval(address indexed currency);
 
 //-----------------------------------------------------------------------// v INTERFACES
 
