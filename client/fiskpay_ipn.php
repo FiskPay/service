@@ -13,6 +13,10 @@ $wallet = "0x41dA7A1e5085179F43758dC5F0a5bBEB012E07F1";
 //Set $logTransactions parameter as true, to create a json file on every new transaction that you receive.
 $logTransactions = true;
 
+
+//IMPORTANT! Requires the allow_url_fopen parameter in php.ini file to be set as "On" (allow_url_fopen=On)
+
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------//
 //------------------------------------------------------------ DO NOT EDIT THE CODE BELOW THIS COMMENT ------------------------------------------------------------//
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------//
