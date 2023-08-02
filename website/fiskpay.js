@@ -279,6 +279,13 @@ async function Pay(_buttonID) {
 			return false;
 		}
 
+		if (inputAmount.toString().length > 15) {
+
+			sendMessage("Amount length too big");
+			setTimeout(() => { canProcess = true; }, 1000);
+			return false;
+		}
+
 		if (inputAmount == 0) {
 
 			sendMessage("Amount is zero");

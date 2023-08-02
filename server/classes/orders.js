@@ -87,6 +87,9 @@ export default class Orders extends EventEmitter {
         if (!(iOrderObject.amount != undefined && pattern.test(iOrderObject.amount)))
             return false;
 
+        if (iOrderObject.amount.length > 15)
+            return false;
+
         pattern = (/^https?:\/\/(((www\.)?(([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,7}))|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[0-9]{1,4}))?(\/[a-zA-Z0-9_\-]+)*(\.[a-zA-Z]{1,5})?$/);
 
         if (!(iOrderObject.postURL != undefined && pattern.test(iOrderObject.postURL)))
@@ -146,6 +149,9 @@ export default class Orders extends EventEmitter {
 
             while (Array.from(amount)[0] == "0")
                 amount = amount.slice(1);
+
+            if (amount == "")
+                amount = "0";
 
             return amount;
         }
