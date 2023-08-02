@@ -397,6 +397,50 @@ async function Pay(_buttonID) {
 
 				function process(_cryptoSymbol, _processAmount, _processVerification, _processTimestamp) {
 
+					async function startPolling(_txHash) {
+
+						let nonce = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
+						let pollingTransaction = setInterval(async () => {
+
+							let transaction = await web3Instance.eth.getTransaction(_txHash);
+
+							if (transaction != null) {
+
+								let receipt = await web3Instance.eth.getTransactionReceipt(_txHash);
+
+								if (receipt != null && receipt.status == true) {
+
+									clearInterval(pollingTransaction);
+									clearTimeout(expiredFail);
+
+									sendMessage("Transaction was successful");
+									setTimeout(() => { canProcess = true; }, 1500);
+									return true;
+								}
+							}
+							else {
+
+								clearInterval(pollingTransaction);
+
+								sendMessage("Action submitted to the blockchain");
+
+								let pollingNonce = setInterval(async () => {
+
+									let latestCount = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
+
+									if (nonce != latestCount) {
+
+										clearInterval(pollingNonce);
+
+										sendMessage("Action was successful");
+										setTimeout(() => { canProcess = true; }, 1500);
+										return true;
+									}
+								}, 1500);
+							}
+						}, 1500);
+					}
+
 					let expiredFail = setTimeout(async () => {
 
 						sendMessage("Transaction will fail / expired");
@@ -429,12 +473,12 @@ async function Pay(_buttonID) {
 								})
 								.on("transactionHash", (txHash) => {
 
-									clearTimeout(expiredFail);
-
 									startPolling(txHash);
 									sendMessage("Transaction submitted to blockchain");
 								})
 								.on("error", () => {
+
+									clearTimeout(expiredFail);
 
 									if (Date.now() - Number(_processTimestamp) * 1000 >= 900000)
 										sendMessage("Transaction failed / expired");
@@ -445,49 +489,6 @@ async function Pay(_buttonID) {
 									return false;
 								});
 						});
-
-					async function startPolling(_txHash) {
-
-						let nonce = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
-						let pollingTransaction = setInterval(async () => {
-
-							let transaction = await web3Instance.eth.getTransaction(_txHash);
-
-							if (transaction != null) {
-
-								let receipt = await web3Instance.eth.getTransactionReceipt(_txHash);
-
-								if (receipt != null && receipt.status == true) {
-
-									clearInterval(pollingTransaction);
-
-									sendMessage("Transaction was successful");
-									setTimeout(() => { canProcess = true; }, 1500);
-									return true;
-								}
-							}
-							else {
-
-								clearInterval(pollingTransaction);
-
-								sendMessage("Action submitted to the blockchain");
-
-								let pollingNonce = setInterval(async () => {
-
-									let latestCount = await web3Instance.eth.getTransactionCount(senderCurrentAddress);
-
-									if (nonce != latestCount) {
-
-										clearInterval(pollingNonce);
-
-										sendMessage("Action was successful");
-										setTimeout(() => { canProcess = true; }, 1500);
-										return true;
-									}
-								}, 1500);
-							}
-						}, 1500);
-					}
 				}
 
 				const processAmount = responseObject.data.amount;
