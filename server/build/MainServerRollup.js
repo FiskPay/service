@@ -141,45 +141,6 @@ class Orders extends EventEmitter {
     #supportedCryptoObject = new Object();
     #supportedFiatObject = new Object();
 
-    #orderObjectTemplate = {
-
-        "lastUpdate": null,
-
-        "order": {
-            "network": null,
-            "timestamp": null,
-            "verification": null,
-
-            "txHash": null,
-            "sender": null,
-            "receiver": null,
-
-            "cryptoCurrency": {
-                "symbol": null,
-                "amount": null,
-                "totalUSDValue": null,
-                "unitUSDValue": null
-            },
-
-            "fiatCurrency": {
-                "symbol": null,
-                "amount": null,
-                "totalUSDValue": null,
-                "unitUSDValue": null
-            },
-
-            "postData": {
-                "url": null,
-                "item1": null,
-                "item2": null,
-                "item3": null,
-                "item4": null
-            },
-
-            "claimCounter": null
-        }
-    };
-
     constructor(ordersDir, serverDir, cryptoUpdateInSeconds, fiatUpdateInSeconds) {
 
         super();
@@ -475,7 +436,44 @@ class Orders extends EventEmitter {
             return responseObject;
         }
 
-        let newOrderObject = new Object(this.#orderObjectTemplate);
+        let newOrderObject = {
+
+            "lastUpdate": null,
+    
+            "order": {
+                "network": null,
+                "timestamp": null,
+                "verification": null,
+    
+                "txHash": null,
+                "sender": null,
+                "receiver": null,
+    
+                "cryptoCurrency": {
+                    "symbol": null,
+                    "amount": null,
+                    "totalUSDValue": null,
+                    "unitUSDValue": null
+                },
+    
+                "fiatCurrency": {
+                    "symbol": null,
+                    "amount": null,
+                    "totalUSDValue": null,
+                    "unitUSDValue": null
+                },
+    
+                "postData": {
+                    "url": null,
+                    "item1": null,
+                    "item2": null,
+                    "item3": null,
+                    "item4": null
+                },
+    
+                "claimCounter": null
+            }
+        };
 
         newOrderObject.lastUpdate = tnow;
 
