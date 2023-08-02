@@ -58,6 +58,8 @@ contract Processor{
 
 //-----------------------------------------------------------------------// v MAPPINGS
 
+    mapping(bytes32 => bool) private isConsumed;
+
 //-----------------------------------------------------------------------// v MODIFIERS
 
 //-----------------------------------------------------------------------// v CONSTRUCTOR
@@ -107,6 +109,11 @@ contract Processor{
 
         if(uint32(block.timestamp - 15 minutes) > _timestamp)
             revert ("Transaction expired");
+
+        if(isConsumed[_verification] == true)
+            revert ("Verification already consumed");
+
+        isConsumed[_verification] = true;
 
         ISubscribers sb = ISubscribers(pt.GetContractAddress(".Payment.Subscribers"));
 
