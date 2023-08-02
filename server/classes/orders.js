@@ -128,7 +128,7 @@ export default class Orders extends EventEmitter {
 
         function float2Integer(inputAmount, inputDecimals) {
 
-            let amount = String(inputAmount);
+            let amount = inputAmount.toFixed(inputDecimals);
             const dotPosition = amount.indexOf(".");
 
             amount = amount.replace(/\./, "");
@@ -143,6 +143,9 @@ export default class Orders extends EventEmitter {
             else
                 for (let i = 0; i < inputDecimals; i++)
                     amount = amount + "0";
+
+            while (Array.from(amount)[0] == "0")
+                amount = amount.slice(1);
 
             return amount;
         }
@@ -322,30 +325,30 @@ export default class Orders extends EventEmitter {
         let newOrderObject = {
 
             "lastUpdate": null,
-    
+
             "order": {
                 "network": null,
                 "timestamp": null,
                 "verification": null,
-    
+
                 "txHash": null,
                 "sender": null,
                 "receiver": null,
-    
+
                 "cryptoCurrency": {
                     "symbol": null,
                     "amount": null,
                     "totalUSDValue": null,
                     "unitUSDValue": null
                 },
-    
+
                 "fiatCurrency": {
                     "symbol": null,
                     "amount": null,
                     "totalUSDValue": null,
                     "unitUSDValue": null
                 },
-    
+
                 "postData": {
                     "url": null,
                     "item1": null,
@@ -353,7 +356,7 @@ export default class Orders extends EventEmitter {
                     "item3": null,
                     "item4": null
                 },
-    
+
                 "claimCounter": null
             }
         };
