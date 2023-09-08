@@ -73,7 +73,9 @@ export default class Listener extends EventEmitter {
 
                 wasConnected[providerIndex] = false;
 
-                connectedProviders--;
+                if (connectedProviders > 0)
+                    connectedProviders--;
+
                 this.emit('providerChange', network, connectedProviders);
 
                 let pollingReconnection = setInterval(() => {
@@ -137,7 +139,9 @@ export default class Listener extends EventEmitter {
                     console.log(error);
             });
 
-            connectedProviders++;
+            if (connectedProviders < uRLCount)
+                connectedProviders++;
+
             this.emit('providerChange', network, connectedProviders);
 
         }
