@@ -275,13 +275,13 @@ class Orders extends EventEmitter {
 
         const cryptoSymbol = iOrderObject.cryptoSymbol;
         const cryptoDecimals = this.#supportedCryptoObject.crypto[cryptoSymbol].decimals;
-        const cryptoPrice = Number(this.#supportedCryptoObject.crypto[cryptoSymbol].USDPrice);
+        const cryptoPrice = Number(this.#supportedCryptoObject.crypto[cryptoSymbol].USDPrice); // Crypto for 1 USD
 
         const fiatSymbol = iOrderObject.fiatSymbol;
-        const fiatPrice = (fiatSymbol != "crypto") ? Number((1 / this.#supportedFiatObject.fiat[fiatSymbol])) : (null);
+        const fiatPrice = (fiatSymbol != "crypto") ? Number((1 / this.#supportedFiatObject.fiat[fiatSymbol])) : (null); // EUR for 1 USD
 
         const amount = Number(iOrderObject.amount);
-        const multiplier = (fiatSymbol != "crypto") ? (1 / (cryptoPrice * fiatPrice)) : (1);
+        const multiplier = (fiatSymbol != "crypto") ? (fiatPrice / cryptoPrice) : (1);
 
         const payAmountFloat = Number((amount * multiplier).toFixed(18));
 

@@ -164,7 +164,7 @@ export default class Orders extends EventEmitter {
         const fiatPrice = (fiatSymbol != "crypto") ? Number((1 / this.#supportedFiatObject.fiat[fiatSymbol])) : (null); // EUR for 1 USD
 
         const amount = Number(iOrderObject.amount);
-        const multiplier = (fiatSymbol != "crypto") ? (cryptoPrice / fiatPrice) : (1);
+        const multiplier = (fiatSymbol != "crypto") ? (fiatPrice / cryptoPrice) : (1);
 
         const payAmountFloat = Number((amount * multiplier).toFixed(18));
 
