@@ -570,8 +570,6 @@ async function Pay(_buttonID) {
 							}
 						});
 				}
-
-
 			}
 		};
 
@@ -582,7 +580,6 @@ async function Pay(_buttonID) {
 	catch (e) {
 		console.log(e);
 	}
-
 }
 
 let style = document.createElement("style");
